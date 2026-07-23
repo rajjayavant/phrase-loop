@@ -1,0 +1,157 @@
+/**
+ * Looper design tokens.
+ *
+ * All visual decisions flow from these custom properties. Components reference
+ * the *semantic* Tailwind utilities that map to them (e.g. `bg-surface`,
+ * `text-secondary`) — never raw hex values.
+ *
+ * The palette is dark-first (video practice usually happens in low light) but
+ * the token architecture is theme-agnostic: a light theme is provided under
+ * `:root[data-theme="light"]` and can be extended without touching components.
+ *
+ * Naming: color scales use an OKLCH-derived cool graphite base with a single
+ * warm amber accent so the interface reads calm and instrument-like rather
+ * than clinical.
+ */
+
+:root {
+  /* ----- Color: dark theme (default) ----- */
+  --color-canvas: #0b0d10;
+  --color-surface: #14171c;
+  --color-elevated: #1b1f26;
+  --color-subtle: #10131890;
+
+  --color-text-primary: #f2f4f7;
+  --color-text-secondary: #b3bac4;
+  --color-text-muted: #7d8592;
+
+  --color-border: #262b33;
+  --color-border-strong: #363d47;
+
+  /* Accent: deep burnt orange-red (#c03403). Hover brightens, pressed darkens. */
+  --color-accent: #c03403;
+  --color-accent-hover: #db4d18;
+  --color-accent-pressed: #9c2a02;
+  --color-accent-contrast: #ffffff;
+
+  --color-success: #4fbf86;
+  --color-warning: #e0a94a;
+  /* Kept distinct from the warm accent: a cooler crimson for errors. */
+  --color-destructive: #f2617a;
+
+  --color-focus-ring: #6fb2ff;
+
+  --color-timeline-track: #22272f;
+  --color-timeline-buffer: #313945;
+  --color-loop-region: #c0340326;
+  /* Markers use cool hues so they never read as the warm accent. */
+  --color-marker-a: #4ea1ff;
+  --color-marker-b: #d98cff;
+
+  /* Semantic status surfaces (subtle tinted backgrounds) */
+  --color-success-surface: #4fbf861f;
+  --color-warning-surface: #e0a94a1f;
+  --color-destructive-surface: #f2617a1f;
+  --color-accent-surface: #c0340322;
+
+  /* ----- Typography ----- */
+  --font-size-display: clamp(2.25rem, 5vw, 3.5rem);
+  --font-size-page-title: clamp(1.75rem, 3vw, 2.25rem);
+  --font-size-section-title: 1.125rem;
+  --font-size-body: 1rem;
+  --font-size-small-body: 0.875rem;
+  --font-size-label: 0.8125rem;
+  --font-size-numeric: 1rem;
+  --font-size-timestamp: 0.875rem;
+  --font-size-helper: 0.75rem;
+
+  /* ----- Spacing scale (4px base) ----- */
+  --space-0-5: 0.125rem;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+
+  /* ----- Shape ----- */
+  --radius-sm: 0.25rem;
+  --radius-control: 0.5rem;
+  --radius-card: 0.875rem;
+  --radius-pill: 999px;
+
+  /* ----- Elevation ----- */
+  --elevation-menu:
+    0 8px 24px -8px rgba(0, 0, 0, 0.6), 0 2px 6px -2px rgba(0, 0, 0, 0.5);
+  --elevation-dialog:
+    0 24px 60px -12px rgba(0, 0, 0, 0.7), 0 8px 20px -8px rgba(0, 0, 0, 0.5);
+  --elevation-tooltip: 0 4px 12px -4px rgba(0, 0, 0, 0.6);
+  --elevation-floating: 0 12px 32px -10px rgba(0, 0, 0, 0.65);
+
+  /* ----- Motion ----- */
+  --duration-hover: 120ms;
+  --duration-press: 80ms;
+  --duration-menu: 160ms;
+  --duration-dialog: 200ms;
+  --duration-feedback: 240ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-emphasized: cubic-bezier(0.3, 0, 0, 1);
+}
+
+:root[data-theme="light"] {
+  --color-canvas: #f6f7f9;
+  --color-surface: #ffffff;
+  --color-elevated: #ffffff;
+  --color-subtle: #eef0f3;
+
+  --color-text-primary: #14171c;
+  --color-text-secondary: #444c57;
+  --color-text-muted: #6b7482;
+
+  --color-border: #e2e5ea;
+  --color-border-strong: #cfd4db;
+
+  --color-accent: #c03403;
+  --color-accent-hover: #a02a02;
+  --color-accent-pressed: #832302;
+  --color-accent-contrast: #ffffff;
+
+  --color-success: #2f9e63;
+  --color-warning: #b8860b;
+  --color-destructive: #cf3d57;
+
+  --color-focus-ring: #2f6fd6;
+
+  --color-timeline-track: #e2e5ea;
+  --color-timeline-buffer: #cfd4db;
+  --color-loop-region: #c0340322;
+  --color-marker-a: #2f6fd6;
+  --color-marker-b: #9b3fd1;
+
+  --color-success-surface: #2f9e6318;
+  --color-warning-surface: #b8860b18;
+  --color-destructive-surface: #cf3d5718;
+  --color-accent-surface: #c0340312;
+
+  --elevation-menu:
+    0 8px 24px -8px rgba(20, 23, 28, 0.14), 0 2px 6px -2px rgba(20, 23, 28, 0.1);
+  --elevation-dialog:
+    0 24px 60px -12px rgba(20, 23, 28, 0.2),
+    0 8px 20px -8px rgba(20, 23, 28, 0.12);
+  --elevation-tooltip: 0 4px 12px -4px rgba(20, 23, 28, 0.16);
+  --elevation-floating: 0 12px 32px -10px rgba(20, 23, 28, 0.18);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-hover: 0ms;
+    --duration-press: 0ms;
+    --duration-menu: 0ms;
+    --duration-dialog: 0ms;
+    --duration-feedback: 0ms;
+  }
+}
