@@ -106,22 +106,33 @@ export function PracticeWorkspace({
     <div className="flex min-h-dvh flex-col">
       <PracticeHeader />
 
-      {/* Single centered column: video → timeline → transport → speed → advanced */}
-      <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-4 px-4 pb-28 sm:px-5 lg:pb-8">
+      <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-5 px-4 pb-32 pt-1 sm:px-6 lg:pb-10">
         <PlayerSurface containerRef={containerRef} />
-        <Timeline />
 
-        {/* Transport is inline on desktop; a fixed dock on mobile (below). */}
-        <div className="hidden rounded-card border border-border bg-surface p-3 lg:block">
-          <TransportControls />
+        {/* The console: timeline, transport and speed read as one continuous
+            control deck rather than a stack of separate cards. */}
+        <div className="grain relative overflow-hidden rounded-card border border-border bg-surface shadow-faceplate">
+          <div className="relative z-[1] flex flex-col">
+            <div className="px-4 pt-4 sm:px-6 sm:pt-5">
+              <Timeline />
+            </div>
+
+            {/* Transport lives in the console on desktop; docked on mobile. */}
+            <div className="hidden border-t border-border px-4 py-3 sm:px-6 lg:block">
+              <TransportControls />
+            </div>
+
+            <div className="border-t border-border px-4 py-3.5 sm:px-6">
+              <SpeedRow />
+            </div>
+          </div>
         </div>
 
-        <SpeedRow />
         <AdvancedSettings />
       </main>
 
       {/* Mobile transport dock */}
-      <div className="bg-surface/95 fixed inset-x-0 bottom-0 z-40 border-t border-border px-3 py-2.5 backdrop-blur lg:hidden">
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-surface/95 px-3 py-2.5 backdrop-blur lg:hidden">
         <TransportControls />
       </div>
 

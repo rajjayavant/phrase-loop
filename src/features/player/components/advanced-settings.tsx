@@ -29,38 +29,44 @@ export function AdvancedSettings() {
   };
 
   return (
-    <div className="rounded-card border border-border bg-surface">
+    <div className="overflow-hidden rounded-card border border-border bg-surface">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        className="flex w-full items-center justify-between rounded-card px-4 py-3 text-label uppercase tracking-wide text-muted transition-colors hover:text-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+        className="flex w-full items-center justify-between px-5 py-3.5 text-[0.72rem] font-medium uppercase tracking-[0.12em] text-muted transition-colors hover:text-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus"
       >
-        <span className="flex items-center gap-1.5">
+        <span className="flex items-center gap-2">
           <SlidersHorizontal className="h-3.5 w-3.5" />
           Advanced settings
         </span>
         <ChevronDown
           className={cn(
-            "h-4 w-4 transition-transform duration-menu",
+            "h-4 w-4 transition-transform duration-menu ease-emphasized",
             open && "rotate-180",
           )}
         />
       </button>
 
       {open && (
-        <div className="space-y-4 border-t border-border p-4">
-          <MarkerControls />
-          <SpeedPresets />
-          <Button
-            variant="secondary"
-            size="sm"
-            className="w-full gap-2"
-            onClick={requestFullscreen}
-          >
-            <Maximize className="h-4 w-4" />
-            Toggle fullscreen
-          </Button>
+        <div className="border-t border-border">
+          <div className="border-b border-border px-5 py-5">
+            <MarkerControls />
+          </div>
+          <div className="border-b border-border px-5 py-5">
+            <SpeedPresets />
+          </div>
+          <div className="px-5 py-4">
+            <Button
+              variant="secondary"
+              size="sm"
+              className="w-full gap-2"
+              onClick={requestFullscreen}
+            >
+              <Maximize className="h-4 w-4" />
+              Toggle fullscreen
+            </Button>
+          </div>
         </div>
       )}
     </div>

@@ -33,18 +33,21 @@ const config: Config = {
         "loop-region": "var(--color-loop-region)",
         "marker-a": "var(--color-marker-a)",
         "marker-b": "var(--color-marker-b)",
+        "accent-soft": "var(--color-accent-soft)",
       },
       fontFamily: {
         sans: "var(--font-sans)",
+        display: "var(--font-display)",
+        mono: "var(--font-mono)",
       },
       fontSize: {
         display: [
           "var(--font-size-display)",
-          { lineHeight: "1.05", letterSpacing: "-0.02em", fontWeight: "600" },
+          { lineHeight: "0.98", letterSpacing: "-0.035em", fontWeight: "700" },
         ],
         "page-title": [
           "var(--font-size-page-title)",
-          { lineHeight: "1.1", letterSpacing: "-0.015em", fontWeight: "600" },
+          { lineHeight: "1.05", letterSpacing: "-0.03em", fontWeight: "700" },
         ],
         "section-title": [
           "var(--font-size-section-title)",
@@ -90,6 +93,10 @@ const config: Config = {
         dialog: "var(--elevation-dialog)",
         tooltip: "var(--elevation-tooltip)",
         floating: "var(--elevation-floating)",
+        faceplate: "var(--elevation-faceplate)",
+      },
+      backgroundImage: {
+        glow: "var(--glow-accent)",
       },
       transitionTimingFunction: {
         standard: "var(--ease-standard)",

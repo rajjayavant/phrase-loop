@@ -59,7 +59,7 @@ export function HeaderLinkInput() {
           autoComplete="off"
           autoCapitalize="none"
           spellCheck={false}
-          className="h-9 pl-9 pr-16"
+          className="h-10 rounded-pill bg-subtle pl-9 pr-16 text-[0.85rem]"
         />
         {value ? (
           <div className="absolute right-1.5 top-1/2 flex -translate-y-1/2 items-center gap-0.5">

@@ -9,28 +9,27 @@ import { formatClock } from "@/lib/formatting/timestamp";
 import { cn } from "@/lib/utilities/cn";
 
 interface TimelineTrackProps {
-  /** Visible window start in seconds. */
   windowStart: number;
-  /** Visible window end in seconds. */
   windowEnd: number;
-  /** Compact height variant for the precision lane. */
   compact?: boolean;
   ariaLabel: string;
 }
 
+const TICK_COUNT = 40;
+
 /**
- * A single scrubbable timeline lane over a [windowStart, windowEnd] window.
+ * The ruled "tape" track — the instrument's scrub surface.
  *
- * Layout that fixes the "three controls fight over the same pixels" bug:
- *   - The clickable track (seek/scrub) is a thin bar in the vertical middle.
- *   - Marker A/B handles are tall pills that sit ABOVE the track on their own
- *     z-layer with wide grab targets; their pointerdown stops propagation so a
- *     marker drag never also seeks.
- *   - The playhead is purely visual (`pointer-events-none`) and never steals a
- *     drag.
+ * Layout that keeps the playhead, marker A and marker B from fighting over the
+ * same pixels:
+ *   - The seek/scrub tape fills the vertical center; clicking it seeks.
+ *   - A/B chips are tall hardware-style handles ABOVE the tape, on their own
+ *     z-layer with wide grab targets; a marker drag stops propagation so it
+ *     never also seeks.
+ *   - The playhead is a bright vertical line + cap, purely visual.
  *
- * The playhead is positioned imperatively from the rAF playhead subscription,
- * so playback never re-renders this component.
+ * The playhead is positioned imperatively from the rAF clock, so playback never
+ * re-renders this component.
  */
 export function TimelineTrack({
   windowStart,
@@ -83,13 +82,11 @@ export function TimelineTrack({
     onDragStateChange: setDragTarget,
   });
 
-  // Position the playhead imperatively from the rAF clock.
   React.useEffect(() => {
     const node = playheadRef.current;
     if (!node) return;
     const update = (time: number) => {
-      const percent = timeToPercent(time);
-      node.style.left = `${percent}%`;
+      node.style.left = `${timeToPercent(time)}%`;
       node.style.opacity =
         time < windowStart - 0.01 || time > windowEnd + 0.01 ? "0" : "1";
     };
@@ -106,14 +103,13 @@ export function TimelineTrack({
     setHoverTime(clientXToTime(event.clientX));
   };
 
-  // Total interactive height gives markers room to extend above the track.
-  const laneHeight = compact ? "h-9" : "h-11";
-  const trackThickness = compact ? "h-2" : "h-2.5";
+  const laneHeight = compact ? "h-12" : "h-16";
+  const tapeThickness = compact ? "h-8" : "h-11";
 
   return (
     <div className={cn("relative select-none", laneHeight)}>
-      {/* Marker + region layer (above the track). Pointer-transparent except
-          on the marker handles themselves. */}
+      {/* Marker chip layer (above the tape). Pointer-transparent except on the
+          chips themselves. */}
       <div className="pointer-events-none absolute inset-0 z-20">
         {aPercent != null && (
           <MarkerHandle
@@ -123,7 +119,6 @@ export function TimelineTrack({
             onPointerDown={handlePointerDown("markerA")}
             onPointerMove={handlePointerMove}
             onPointerUp={handlePointerUp}
-            compact={compact}
             time={markerA}
           />
         )}
@@ -135,13 +130,12 @@ export function TimelineTrack({
             onPointerDown={handlePointerDown("markerB")}
             onPointerMove={handlePointerMove}
             onPointerUp={handlePointerUp}
-            compact={compact}
             time={markerB}
           />
         )}
       </div>
 
-      {/* The seek/scrub track, vertically centered. */}
+      {/* The scrub tape */}
       <div
         ref={trackRef}
         role="slider"
@@ -170,48 +164,65 @@ export function TimelineTrack({
           }
         }}
         className={cn(
-          "absolute inset-x-0 top-1/2 z-10 -translate-y-1/2",
-          "w-full cursor-pointer touch-none rounded-pill bg-timeline-track",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-canvas",
-          trackThickness,
+          "absolute inset-x-0 top-1/2 -translate-y-1/2 z-10",
+          "w-full cursor-pointer touch-none overflow-hidden rounded-control",
+          "border border-border bg-timeline-track",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface",
+          tapeThickness,
         )}
       >
-        {/* Loop region */}
+        {/* Ruler ticks etched into the tape — a faint, evenly-spaced hairline
+            ruler that reads as engraved metal, not a barcode. */}
+        <div
+          className="pointer-events-none absolute inset-0 flex items-center justify-between px-2"
+          aria-hidden="true"
+        >
+          {Array.from({ length: TICK_COUNT + 1 }).map((_, i) => (
+            <span
+              key={i}
+              className={cn(
+                "w-px rounded-full bg-primary",
+                i % 5 === 0 ? "h-2 opacity-[0.14]" : "h-1 opacity-[0.07]",
+              )}
+            />
+          ))}
+        </div>
+
+        {/* Loop region — a warm ember band with glowing boundary posts. */}
         {showLoopRegion && (
           <div
             className={cn(
-              "absolute inset-y-0 rounded-pill",
+              "absolute inset-y-0 transition-colors",
               loopEnabled
-                ? "ring-accent/40 bg-[var(--color-loop-region)] ring-1 ring-inset"
-                : "bg-subtle",
+                ? "bg-gradient-to-b from-accent/35 via-accent/20 to-accent/25"
+                : "bg-timeline-buffer",
             )}
             style={{
               left: `${Math.min(aPercent, bPercent)}%`,
               width: `${Math.abs(bPercent - aPercent)}%`,
             }}
             aria-hidden="true"
-          />
+          >
+            <span className="absolute inset-y-0 left-0 w-[2px] bg-marker-a shadow-[0_0_8px_var(--color-marker-a)]" />
+            <span className="absolute inset-y-0 right-0 w-[2px] bg-marker-b shadow-[0_0_8px_var(--color-marker-b)]" />
+          </div>
         )}
 
-        {/* Playhead (purely visual) */}
+        {/* Playhead: bright vertical filament + cap */}
         <div
           ref={playheadRef}
-          className="pointer-events-none absolute top-1/2 z-[15] -translate-x-1/2 -translate-y-1/2"
+          className="pointer-events-none absolute inset-y-0 z-[15] -translate-x-1/2"
           style={{ left: "0%" }}
           aria-hidden="true"
         >
-          <div
-            className={cn(
-              "rounded-pill bg-primary shadow-tooltip ring-2 ring-canvas",
-              compact ? "h-3.5 w-3.5" : "h-4 w-4",
-            )}
-          />
+          <span className="absolute inset-y-0 left-1/2 w-[2px] -translate-x-1/2 bg-primary shadow-[0_0_8px_rgba(255,255,255,0.4)]" />
+          <span className="absolute left-1/2 top-0 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary shadow-tooltip" />
         </div>
 
         {/* Hover preview */}
         {hoverTime != null && duration > 0 && (
           <div
-            className="tabular pointer-events-none absolute -top-8 z-30 -translate-x-1/2 rounded-sm border border-border bg-elevated px-1.5 py-0.5 text-[0.65rem] text-primary shadow-tooltip"
+            className="tabular pointer-events-none absolute -top-9 z-30 -translate-x-1/2 rounded-sm border border-border bg-elevated px-1.5 py-0.5 text-[0.65rem] text-primary shadow-tooltip"
             style={{ left: `${timeToPercent(hoverTime)}%` }}
             aria-hidden="true"
           >
@@ -227,7 +238,6 @@ interface MarkerHandleProps {
   marker: "A" | "B";
   percent: number;
   dragging: boolean;
-  compact?: boolean;
   time: number | null;
   onPointerDown: (e: React.PointerEvent) => void;
   onPointerMove: (e: React.PointerEvent) => void;
@@ -235,15 +245,14 @@ interface MarkerHandleProps {
 }
 
 /**
- * A tall marker handle: a labeled cap sitting above the track connected to a
- * thin stem that crosses it. The whole thing is one wide pointer target, which
- * makes A and B easy to grab and impossible to confuse with a track seek.
+ * A hardware-style marker chip: a labeled cap sitting above the tape with a
+ * thin stem crossing it. One wide pointer target, easy to grab, impossible to
+ * confuse with a track seek.
  */
 function MarkerHandle({
   marker,
   percent,
   dragging,
-  compact,
   time,
   onPointerDown,
   onPointerMove,
@@ -262,31 +271,26 @@ function MarkerHandle({
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
         className={cn(
-          "group pointer-events-auto absolute inset-y-0 flex cursor-ew-resize touch-none flex-col items-center",
-          // Wide invisible hit area so the handle is easy to grab.
-          "-translate-x-1/2 px-2",
+          "group pointer-events-auto absolute inset-y-0 flex -translate-x-1/2 cursor-ew-resize touch-none flex-col items-center px-2.5",
           "focus-visible:outline-none",
         )}
       >
-        {/* Cap */}
         <span
           className={cn(
-            "flex items-center justify-center rounded-sm border font-semibold text-canvas",
+            "flex h-[1.15rem] w-5 items-center justify-center rounded-md border font-mono text-[0.65rem] font-semibold text-black",
             "shadow-tooltip transition-transform",
-            "group-focus-visible:ring-2 group-focus-visible:ring-focus group-focus-visible:ring-offset-1 group-focus-visible:ring-offset-canvas",
+            "group-focus-visible:ring-2 group-focus-visible:ring-focus group-focus-visible:ring-offset-1 group-focus-visible:ring-offset-surface",
             isA ? "border-marker-a bg-marker-a" : "border-marker-b bg-marker-b",
             dragging && "scale-110",
-            compact ? "h-4 w-4 text-[0.6rem]" : "h-5 w-5 text-[0.65rem]",
           )}
         >
           {marker}
         </span>
-        {/* Stem crossing the track */}
         <span
           className={cn(
-            "mt-0.5 w-0.5 flex-1 rounded-pill",
+            "mt-0.5 w-[2px] flex-1 rounded-full",
             isA ? "bg-marker-a" : "bg-marker-b",
-            dragging ? "opacity-100" : "opacity-80",
+            dragging ? "opacity-100" : "opacity-70",
           )}
           aria-hidden="true"
         />

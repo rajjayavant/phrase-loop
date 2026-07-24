@@ -1,8 +1,9 @@
-# Looper Design System
+# Looper Design System — "Studio Instrument"
 
-A documented, token-driven design language. The product should feel **precise,
-modern, quiet, professional, slightly technical, and warm enough for long
-practice sessions** — a musical instrument, not a dashboard.
+A documented, token-driven design language. Looper should feel like a **boutique
+piece of studio gear** — warm, tactile, precise, and quiet — not a generic web
+app or dashboard. The player is a lit **faceplate**; the timeline is a ruled
+**tape**; timestamps read like instrument readouts.
 
 All tokens live in [`src/styles/tokens.css`](src/styles/tokens.css) as CSS
 custom properties and are exposed to Tailwind via
@@ -13,59 +14,69 @@ utilities (`bg-surface`, `text-secondary`, `text-marker-a`) — never raw hex.**
 
 ## Principles
 
-1. **Precision over decoration.** Every control has a clear, immediate purpose.
-   No decorative animation, no glassmorphism-everywhere, no gradient soup.
-2. **Calm by default, power on demand.** The default surface stays uncrowded —
-   video, timeline, transport, and a slim speed row. Precision controls (marker
-   editing, nudge granularity, full speed presets) live in a collapsible
-   **Advanced settings** panel so they never dominate.
-3. **Dark-first, theme-ready.** The palette is dark-first (practice happens in
-   low light) but every color is a semantic token, and a `light` theme is
-   already defined under `:root[data-theme="light"]`.
-4. **One system.** Reusable primitives, consistent spacing, one radius scale,
-   one motion scale. No one-off versions of common controls.
-5. **Never color-only.** State and identity are always reinforced with text,
-   shape, or iconography.
+1. **Instrument, not interface.** Controls are joined into a single "console"
+   deck. Warmth (espresso graphite + ember accent + faint grain and glow) makes
+   large dark surfaces read as a physical unit, not flat black.
+2. **Precision over decoration.** One bold moment (the faceplate + big mono
+   readouts); everything else is restrained. No glassmorphism-everywhere, no
+   gradient soup.
+3. **Calm by default, power on demand.** The default view is video → console
+   (timeline + transport + speed). Precision controls (marker editing, nudge
+   granularity, full speed presets, fullscreen) live in a collapsible
+   **Advanced settings** panel.
+4. **Warm dark-first, theme-ready.** Dark-first (practice happens in low light);
+   a warm **cream** light theme lives under `:root[data-theme="light"]`.
+5. **One system.** Reusable primitives, one radius scale, one motion scale.
+6. **Never color-only.** State and identity are reinforced with text, shape, or
+   iconography (e.g. A/B markers carry letters, not just hues).
 
 ---
 
 ## Color tokens
 
-Semantic name → token (dark theme value shown for reference).
+The base is a **warm espresso graphite** lit by a single **burnt-orange ember**
+accent, with one cool sage note for success. Semantic name → token (dark values).
 
-| Semantic          | Token                       | Dark      |
-| ----------------- | --------------------------- | --------- |
-| Canvas            | `--color-canvas`            | `#0b0d10` |
-| Surface           | `--color-surface`           | `#14171c` |
-| Elevated surface  | `--color-elevated`          | `#1b1f26` |
-| Subtle surface    | `--color-subtle`            | translucent |
-| Primary text      | `--color-text-primary`      | `#f2f4f7` |
-| Secondary text    | `--color-text-secondary`    | `#b3bac4` |
-| Muted text        | `--color-text-muted`        | `#7d8592` |
-| Border            | `--color-border`            | `#262b33` |
-| Strong border     | `--color-border-strong`     | `#363d47` |
-| Accent            | `--color-accent`            | `#e8a13a` (warm amber) |
-| Accent hover      | `--color-accent-hover`      | `#f0b055` |
-| Accent pressed    | `--color-accent-pressed`    | `#cf8c2c` |
-| Success           | `--color-success`           | `#59c088` |
-| Warning           | `--color-warning`           | `#e0b64a` |
-| Destructive       | `--color-destructive`       | `#e0685f` |
-| Focus ring        | `--color-focus-ring`        | `#7cb8ff` |
-| Timeline track    | `--color-timeline-track`    | `#22272f` |
-| Loop region       | `--color-loop-region`       | amber @ ~14% |
-| Marker A          | `--color-marker-a`          | `#4ea1ff` (blue) |
-| Marker B          | `--color-marker-b`          | `#f2748c` (rose) |
+| Semantic          | Token                       | Dark                         |
+| ----------------- | --------------------------- | ---------------------------- |
+| Canvas            | `--color-canvas`            | `#14100e` (warm near-black)  |
+| Surface           | `--color-surface`           | `#1c1815`                    |
+| Elevated surface  | `--color-elevated`          | `#241f1b`                    |
+| Subtle surface    | `--color-subtle`            | warm white @ 3.5%            |
+| Primary text      | `--color-text-primary`      | `#f7f3ee`                    |
+| Secondary text    | `--color-text-secondary`    | `#b8afa6`                    |
+| Muted text        | `--color-text-muted`        | `#857b71`                    |
+| Border            | `--color-border`            | warm white @ 8%              |
+| Strong border     | `--color-border-strong`     | warm white @ 16%             |
+| Accent (ember)    | `--color-accent`            | `#e0561f` (from `#c03403`)   |
+| Accent hover      | `--color-accent-hover`      | `#f26a30`                    |
+| Accent pressed    | `--color-accent-pressed`    | `#c03403` (brand base)       |
+| Accent soft       | `--color-accent-soft`       | ember @ 14%                  |
+| Success (sage)    | `--color-success`           | `#a9cc5a`                    |
+| Warning           | `--color-warning`           | `#e6b455`                    |
+| Destructive       | `--color-destructive`       | `#f26a5f`                    |
+| Focus ring        | `--color-focus-ring`        | `#7fb2ff` (cool, for contrast) |
+| Loop region       | `--color-loop-region`       | ember @ 16%                  |
+| Marker A          | `--color-marker-a`          | `#5aa9ff` (blue)             |
+| Marker B          | `--color-marker-b`          | `#c98cff` (violet)           |
 
-Markers use **distinct hues _and_ letter labels** so they are distinguishable
-without color. Tinted status surfaces (`--color-*-surface`) back badges and
-status messages.
+`#c03403` is the brand base; on the dark canvas it's warmed to a glowing ember
+(`#e0561f`) and used as the pressed state. The light theme uses `#c03403`
+directly on cream. Markers use **distinct cool hues _and_ letter labels**.
+`--glow-accent` powers the ambient bloom behind the faceplate.
 
 ---
 
 ## Typography
 
-One variable sans — **Inter**, via `next/font` (`--font-inter`). Timestamps,
-speeds, and measurements use **tabular numerals** (`.tabular`).
+A three-voice system, all via `next/font`:
+
+- **Poppins** (`--font-display`) — brand voice: the wordmark, dialog titles,
+  and any display moment. Set tight (`-0.03/-0.04em`).
+- **Inter** (`--font-sans`) — body and UI copy.
+- **JetBrains Mono** (`--font-mono`) — every measurement (timestamps, speeds,
+  keycaps). The `.tabular` utility maps to it with `tnum` on, so readouts read
+  as instrument displays.
 
 | Role            | Token                        | Notes                        |
 | --------------- | ---------------------------- | ---------------------------- |

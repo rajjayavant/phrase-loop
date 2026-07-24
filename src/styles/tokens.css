@@ -1,66 +1,83 @@
 /**
- * Looper design tokens.
+ * Looper design tokens — "Studio Instrument".
  *
  * All visual decisions flow from these custom properties. Components reference
  * the *semantic* Tailwind utilities that map to them (e.g. `bg-surface`,
  * `text-secondary`) — never raw hex values.
  *
- * The palette is dark-first (video practice usually happens in low light) but
- * the token architecture is theme-agnostic: a light theme is provided under
- * `:root[data-theme="light"]` and can be extended without touching components.
+ * Direction: Looper should feel like a boutique piece of studio gear, not a
+ * web app. The base is a WARM near-black graphite (a deep espresso, not the
+ * cold blue-black most tools use), lit by a single burnt-orange accent. Poppins
+ * carries the brand voice; a true monospace turns every timestamp and speed
+ * into an instrument readout.
  *
- * Naming: color scales use an OKLCH-derived cool graphite base with a single
- * warm amber accent so the interface reads calm and instrument-like rather
- * than clinical.
+ * Dark-first (video practice happens in low light). A refined warm light theme
+ * lives under `:root[data-theme="light"]`.
  */
 
 :root {
-  /* ----- Color: dark theme (default) ----- */
-  --color-canvas: #0b0d10;
-  --color-surface: #14171c;
-  --color-elevated: #1b1f26;
-  --color-subtle: #10131890;
+  /* ----- Color: dark theme (default) — warm espresso graphite ----- */
+  --color-canvas: #14100e;
+  --color-surface: #1c1815;
+  --color-elevated: #241f1b;
+  --color-subtle: rgba(255, 250, 245, 0.035);
 
-  --color-text-primary: #f2f4f7;
-  --color-text-secondary: #b3bac4;
-  --color-text-muted: #7d8592;
+  --color-text-primary: #f7f3ee;
+  --color-text-secondary: #b8afa6;
+  --color-text-muted: #857b71;
 
-  --color-border: #262b33;
-  --color-border-strong: #363d47;
+  --color-border: rgba(255, 246, 238, 0.08);
+  --color-border-strong: rgba(255, 246, 238, 0.16);
 
-  /* Accent: deep burnt orange-red (#c03403). Hover brightens, pressed darkens. */
-  --color-accent: #c03403;
-  --color-accent-hover: #db4d18;
-  --color-accent-pressed: #9c2a02;
-  --color-accent-contrast: #ffffff;
+  /* Accent: burnt orange-red (#c03403), warmed into a glowing ember on the
+     dark canvas. Hover brightens, pressed darkens. */
+  --color-accent: #e0561f;
+  --color-accent-hover: #f26a30;
+  --color-accent-pressed: #c03403;
+  --color-accent-contrast: #14100e;
+  --color-accent-soft: rgba(224, 86, 31, 0.14);
 
-  --color-success: #4fbf86;
-  --color-warning: #e0a94a;
-  /* Kept distinct from the warm accent: a cooler crimson for errors. */
-  --color-destructive: #f2617a;
+  /* A cool sage/chartreuse "success" borrowed from the sibling brand palette —
+     the one cool note that keeps the warm scheme from feeling monotone. */
+  --color-success: #a9cc5a;
+  --color-warning: #e6b455;
+  --color-destructive: #f26a5f;
 
-  --color-focus-ring: #6fb2ff;
+  --color-focus-ring: #7fb2ff;
 
-  --color-timeline-track: #22272f;
-  --color-timeline-buffer: #313945;
-  --color-loop-region: #c0340326;
+  --color-timeline-track: rgba(255, 246, 238, 0.07);
+  --color-timeline-buffer: rgba(255, 246, 238, 0.14);
+  --color-loop-region: rgba(224, 86, 31, 0.16);
   /* Markers use cool hues so they never read as the warm accent. */
-  --color-marker-a: #4ea1ff;
-  --color-marker-b: #d98cff;
+  --color-marker-a: #5aa9ff;
+  --color-marker-b: #c98cff;
 
   /* Semantic status surfaces (subtle tinted backgrounds) */
-  --color-success-surface: #4fbf861f;
-  --color-warning-surface: #e0a94a1f;
-  --color-destructive-surface: #f2617a1f;
-  --color-accent-surface: #c0340322;
+  --color-success-surface: rgba(169, 204, 90, 0.14);
+  --color-warning-surface: rgba(230, 180, 85, 0.14);
+  --color-destructive-surface: rgba(242, 106, 95, 0.14);
+  --color-accent-surface: rgba(224, 86, 31, 0.14);
+
+  /* Ambient glow used behind the player faceplate. */
+  --glow-accent: radial-gradient(
+    120% 120% at 50% 0%,
+    rgba(224, 86, 31, 0.12) 0%,
+    rgba(224, 86, 31, 0) 60%
+  );
 
   /* ----- Typography ----- */
-  --font-size-display: clamp(2.25rem, 5vw, 3.5rem);
-  --font-size-page-title: clamp(1.75rem, 3vw, 2.25rem);
-  --font-size-section-title: 1.125rem;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", sans-serif;
+  --font-display: var(--font-poppins), var(--font-inter), sans-serif;
+  --font-mono: var(--font-mono), ui-monospace, "SF Mono", "JetBrains Mono",
+    monospace;
+
+  --font-size-display: clamp(2.75rem, 6vw, 4.5rem);
+  --font-size-page-title: clamp(1.75rem, 3vw, 2.5rem);
+  --font-size-section-title: 1.0625rem;
   --font-size-body: 1rem;
   --font-size-small-body: 0.875rem;
-  --font-size-label: 0.8125rem;
+  --font-size-label: 0.75rem;
   --font-size-numeric: 1rem;
   --font-size-timestamp: 0.875rem;
   --font-size-helper: 0.75rem;
@@ -79,71 +96,86 @@
   --space-16: 4rem;
 
   /* ----- Shape ----- */
-  --radius-sm: 0.25rem;
-  --radius-control: 0.5rem;
-  --radius-card: 0.875rem;
+  --radius-sm: 0.375rem;
+  --radius-control: 0.625rem;
+  --radius-card: 1.125rem;
   --radius-pill: 999px;
 
   /* ----- Elevation ----- */
   --elevation-menu:
-    0 8px 24px -8px rgba(0, 0, 0, 0.6), 0 2px 6px -2px rgba(0, 0, 0, 0.5);
+    0 8px 28px -8px rgba(0, 0, 0, 0.7), 0 2px 6px -2px rgba(0, 0, 0, 0.55);
   --elevation-dialog:
-    0 24px 60px -12px rgba(0, 0, 0, 0.7), 0 8px 20px -8px rgba(0, 0, 0, 0.5);
-  --elevation-tooltip: 0 4px 12px -4px rgba(0, 0, 0, 0.6);
-  --elevation-floating: 0 12px 32px -10px rgba(0, 0, 0, 0.65);
+    0 28px 70px -12px rgba(0, 0, 0, 0.78), 0 8px 20px -8px rgba(0, 0, 0, 0.55);
+  --elevation-tooltip: 0 4px 14px -4px rgba(0, 0, 0, 0.65);
+  --elevation-floating: 0 14px 36px -10px rgba(0, 0, 0, 0.7);
+  /* Faceplate: a slight inner top-light + grounding shadow, like a device. */
+  --elevation-faceplate:
+    inset 0 1px 0 rgba(255, 246, 238, 0.05),
+    0 24px 60px -24px rgba(0, 0, 0, 0.8);
 
   /* ----- Motion ----- */
-  --duration-hover: 120ms;
+  --duration-hover: 140ms;
   --duration-press: 80ms;
-  --duration-menu: 160ms;
-  --duration-dialog: 200ms;
-  --duration-feedback: 240ms;
+  --duration-menu: 180ms;
+  --duration-dialog: 220ms;
+  --duration-feedback: 260ms;
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);
-  --ease-emphasized: cubic-bezier(0.3, 0, 0, 1);
+  --ease-emphasized: cubic-bezier(0.34, 1.2, 0.5, 1);
 }
 
 :root[data-theme="light"] {
-  --color-canvas: #f6f7f9;
-  --color-surface: #ffffff;
-  --color-elevated: #ffffff;
-  --color-subtle: #eef0f3;
+  /* Warm cream light theme (mirrors the sibling brand's cream surfaces). */
+  --color-canvas: #f4efe8;
+  --color-surface: #fffdfa;
+  --color-elevated: #fffdfa;
+  --color-subtle: rgba(21, 19, 18, 0.04);
 
-  --color-text-primary: #14171c;
-  --color-text-secondary: #444c57;
-  --color-text-muted: #6b7482;
+  --color-text-primary: #1a1512;
+  --color-text-secondary: #5a5149;
+  --color-text-muted: #8a8078;
 
-  --color-border: #e2e5ea;
-  --color-border-strong: #cfd4db;
+  --color-border: rgba(21, 19, 18, 0.1);
+  --color-border-strong: rgba(21, 19, 18, 0.2);
 
   --color-accent: #c03403;
-  --color-accent-hover: #a02a02;
-  --color-accent-pressed: #832302;
-  --color-accent-contrast: #ffffff;
+  --color-accent-hover: #a82c02;
+  --color-accent-pressed: #8a2302;
+  --color-accent-contrast: #fffdfa;
+  --color-accent-soft: rgba(192, 52, 3, 0.1);
 
-  --color-success: #2f9e63;
-  --color-warning: #b8860b;
-  --color-destructive: #cf3d57;
+  --color-success: #6f9127;
+  --color-warning: #b07d10;
+  --color-destructive: #cf3d3d;
 
   --color-focus-ring: #2f6fd6;
 
-  --color-timeline-track: #e2e5ea;
-  --color-timeline-buffer: #cfd4db;
-  --color-loop-region: #c0340322;
+  --color-timeline-track: rgba(21, 19, 18, 0.1);
+  --color-timeline-buffer: rgba(21, 19, 18, 0.18);
+  --color-loop-region: rgba(192, 52, 3, 0.14);
   --color-marker-a: #2f6fd6;
-  --color-marker-b: #9b3fd1;
+  --color-marker-b: #8b3fce;
 
-  --color-success-surface: #2f9e6318;
-  --color-warning-surface: #b8860b18;
-  --color-destructive-surface: #cf3d5718;
-  --color-accent-surface: #c0340312;
+  --color-success-surface: rgba(111, 145, 39, 0.14);
+  --color-warning-surface: rgba(176, 125, 16, 0.14);
+  --color-destructive-surface: rgba(207, 61, 61, 0.12);
+  --color-accent-surface: rgba(192, 52, 3, 0.1);
+
+  --glow-accent: radial-gradient(
+    120% 120% at 50% 0%,
+    rgba(192, 52, 3, 0.06) 0%,
+    rgba(192, 52, 3, 0) 60%
+  );
 
   --elevation-menu:
-    0 8px 24px -8px rgba(20, 23, 28, 0.14), 0 2px 6px -2px rgba(20, 23, 28, 0.1);
+    0 8px 24px -8px rgba(21, 19, 18, 0.16), 0 2px 6px -2px rgba(21, 19, 18, 0.1);
   --elevation-dialog:
-    0 24px 60px -12px rgba(20, 23, 28, 0.2),
-    0 8px 20px -8px rgba(20, 23, 28, 0.12);
-  --elevation-tooltip: 0 4px 12px -4px rgba(20, 23, 28, 0.16);
-  --elevation-floating: 0 12px 32px -10px rgba(20, 23, 28, 0.18);
+    0 24px 60px -12px rgba(21, 19, 18, 0.22),
+    0 8px 20px -8px rgba(21, 19, 18, 0.12);
+  --elevation-tooltip: 0 4px 12px -4px rgba(21, 19, 18, 0.18);
+  --elevation-floating: 0 12px 32px -10px rgba(21, 19, 18, 0.2);
+  --elevation-faceplate:
+    inset 0 1px 0 rgba(255, 255, 255, 0.8),
+    0 24px 60px -24px rgba(21, 19, 18, 0.18);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -153,5 +185,6 @@
     --duration-menu: 0ms;
     --duration-dialog: 0ms;
     --duration-feedback: 0ms;
+    --ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
   }
 }

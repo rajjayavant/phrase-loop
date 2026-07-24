@@ -10,23 +10,24 @@ import { HeaderLinkInput } from "@/features/link-input/header-link-input";
 
 export function PracticeHeader() {
   return (
-    <header className="bg-canvas/85 sticky top-0 z-30 border-b border-border backdrop-blur">
-      <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 sm:px-5">
+    <header className="sticky top-0 z-30">
+      {/* Warm blur veil so content scrolls gracefully under the bar. */}
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-canvas via-canvas/90 to-transparent backdrop-blur-[2px]" />
+      <div className="relative mx-auto flex w-full max-w-5xl flex-wrap items-center gap-x-4 gap-y-2.5 px-4 py-4 sm:px-6">
         <Link
           href="/"
           aria-label="Looper home"
-          className="rounded-control focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+          className="rounded-control transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
         >
           <Wordmark size="sm" />
         </Link>
 
-        {/* Link input: inline on wide screens, own row on narrow ones. */}
-        <div className="order-3 w-full min-w-0 sm:order-none sm:w-auto sm:max-w-md sm:flex-1">
+        {/* Load-a-link command field: inline on wide screens, own row on narrow. */}
+        <div className="order-3 w-full min-w-0 sm:order-none sm:mx-2 sm:w-auto sm:max-w-md sm:flex-1">
           <HeaderLinkInput />
         </div>
 
-        <div className="ml-auto flex items-center gap-2">
-          {/* Keyboard shortcuts are desktop-only; hide the entry on mobile. */}
+        <div className="ml-auto flex items-center gap-1.5">
           <ShortcutsDialog
             trigger={
               <Button
@@ -35,7 +36,7 @@ export function PracticeHeader() {
                 className="hidden gap-1.5 sm:inline-flex"
               >
                 <Keyboard className="h-4 w-4" />
-                <span className="hidden sm:inline">Shortcuts</span>
+                <span>Shortcuts</span>
               </Button>
             }
           />

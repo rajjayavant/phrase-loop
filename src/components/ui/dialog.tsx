@@ -39,7 +39,7 @@ export const DialogContent = React.forwardRef<
     >
       <div className="mb-4 flex items-start justify-between gap-4">
         <div className="space-y-1">
-          <DialogPrimitive.Title className="text-section-title text-primary">
+          <DialogPrimitive.Title className="font-display text-lg font-semibold tracking-[-0.02em] text-primary">
             {title}
           </DialogPrimitive.Title>
           {description ? (

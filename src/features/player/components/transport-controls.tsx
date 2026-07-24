@@ -16,7 +16,6 @@ import { IconButton, Tooltip } from "@/components/ui";
 import { PlayheadTime } from "./playhead-time";
 import { VolumeControl } from "./volume-control";
 import { LoopToggleButton } from "@/features/loop/components/loop-toggle-button";
-import { formatClock } from "@/lib/formatting/timestamp";
 
 /**
  * The transport bar. A three-zone grid keeps the play/pause button centered
@@ -29,7 +28,6 @@ import { formatClock } from "@/lib/formatting/timestamp";
  */
 export function TransportControls() {
   const status = usePlayerStore((s) => s.status);
-  const duration = usePlayerStore((s) => s.duration);
   const togglePlay = usePlayerStore((s) => s.togglePlay);
   const seekBy = usePlayerStore((s) => s.seekBy);
   const restartVideo = usePlayerStore((s) => s.restartVideo);
@@ -39,20 +37,14 @@ export function TransportControls() {
   const isPlaying = status === "playing" || status === "buffering";
   const disabled =
     status === "idle" || status === "loading" || status === "error";
-  const forceHours = duration >= 3600;
 
   return (
     <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
-      {/* Left zone: time + coarse back seeks */}
+      {/* Left zone: coarse back seek + live time (mobile shows it here since the
+          console readout is desktop-only in the dock). */}
       <div className="flex min-w-0 items-center gap-1">
-        <div className="mr-1 hidden items-baseline gap-1.5 text-timestamp sm:flex">
+        <div className="mr-1 flex items-baseline gap-1.5 text-timestamp lg:hidden">
           <PlayheadTime precise className="text-primary" />
-          <span className="text-muted" aria-hidden="true">
-            /
-          </span>
-          <span className="tabular text-muted">
-            {formatClock(duration, forceHours)}
-          </span>
         </div>
         <Tooltip content="Back 5s">
           <IconButton

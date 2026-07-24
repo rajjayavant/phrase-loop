@@ -24,9 +24,14 @@ export default function RootPage() {
   }, [router]);
 
   return (
-    <div className="flex min-h-dvh flex-col items-center justify-center gap-4">
-      <Wordmark size="lg" />
-      <p className="text-small-body text-muted">Opening your practice space…</p>
+    <div className="flex min-h-dvh flex-col items-center justify-center gap-5">
+      <div className="animate-[rise-in_500ms_var(--ease-emphasized)]">
+        <Wordmark size="lg" />
+      </div>
+      <div className="flex items-center gap-2 text-small-body text-muted">
+        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent motion-reduce:animate-none" />
+        Tuning your practice space…
+      </div>
       <span className="sr-only" role="status">
         Loading Looper
       </span>

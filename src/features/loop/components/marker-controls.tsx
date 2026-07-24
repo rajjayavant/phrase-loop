@@ -8,7 +8,6 @@ import {
 } from "@/features/player/stores/player-store";
 import type { NudgePrecision } from "@/features/session/session-storage";
 import {
-  Card,
   CardHeader,
   CardTitle,
   IconButton,
@@ -39,7 +38,7 @@ export function MarkerControls() {
   const setNudgePrecision = usePlayerStore((s) => s.setNudgePrecision);
 
   return (
-    <Card className="p-4">
+    <div>
       <CardHeader>
         <CardTitle className="flex items-center gap-1.5">
           <Flag className="h-3.5 w-3.5" />
@@ -91,7 +90,7 @@ export function MarkerControls() {
         <kbd className="text-secondary">[</kbd> and{" "}
         <kbd className="text-secondary">]</kbd>.
       </p>
-    </Card>
+    </div>
   );
 }
 

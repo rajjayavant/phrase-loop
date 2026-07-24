@@ -7,9 +7,6 @@
 @layer base {
   :root {
     color-scheme: dark;
-    --font-sans:
-      var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI",
-      sans-serif;
   }
 
   :root[data-theme="light"] {
@@ -31,16 +28,61 @@
     font-family: var(--font-sans);
     font-size: var(--font-size-body);
     line-height: 1.55;
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
     min-height: 100dvh;
+    position: relative;
   }
 
-  /* Tabular numerals for any measurement UI. */
+  /* Warm atmospheric wash + a whisper of grain so large dark surfaces feel like
+     a physical faceplate rather than flat #000. Fixed so it doesn't scroll. */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(
+        90% 60% at 50% -10%,
+        rgba(224, 86, 31, 0.06) 0%,
+        transparent 55%
+      ),
+      radial-gradient(
+        70% 50% at 100% 100%,
+        rgba(169, 204, 90, 0.03) 0%,
+        transparent 50%
+      );
+  }
+
+  :root[data-theme="light"] body::before {
+    background:
+      radial-gradient(
+        90% 60% at 50% -10%,
+        rgba(192, 52, 3, 0.05) 0%,
+        transparent 55%
+      );
+  }
+
+  /* Keep app content above the atmosphere layer. */
+  body > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .font-display {
+    font-family: var(--font-display);
+  }
+  .font-mono {
+    font-family: var(--font-mono);
+  }
+
+  /* Tabular / monospace numerals for measurement UI. */
   .tabular {
+    font-family: var(--font-mono);
     font-variant-numeric: tabular-nums;
     font-feature-settings: "tnum";
+    letter-spacing: -0.01em;
   }
 
   /* Consistent, visible focus treatment across the app. */
@@ -50,14 +92,12 @@
     border-radius: var(--radius-sm);
   }
 
-  /* Remove the default focus ring where we render our own. */
   [data-custom-focus]:focus-visible {
     outline: none;
   }
 }
 
 @layer utilities {
-  /* Screen-reader-only content that remains focusable. */
   .sr-only {
     position: absolute;
     width: 1px;
@@ -77,9 +117,20 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+
+  /* Fine 1px hairline grain for the faceplate — a subtle textured overlay. */
+  .grain::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.5;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
+    border-radius: inherit;
+  }
 }
 
-/* Radix animation helpers, respectful of reduced motion. */
 @keyframes overlay-in {
   from {
     opacity: 0;
@@ -92,10 +143,21 @@
 @keyframes content-in {
   from {
     opacity: 0;
-    transform: translateY(4px) scale(0.98);
+    transform: translateY(6px) scale(0.98);
   }
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
