@@ -72,6 +72,8 @@ export interface PlayerStoreState {
   // --- lifecycle ---
   attachAdapter: (adapter: PlayerAdapter, videoId: string) => void;
   detachAdapter: () => void;
+  /** Clear all per-source state (loop, speed, duration) before seeding a new one. */
+  resetForNewSource: () => void;
   setStatus: (status: PlayerStatus) => void;
   setError: (error: PlayerError | null) => void;
   setDuration: (duration: number) => void;
@@ -181,9 +183,24 @@ export const usePlayerStore = create<PlayerStoreState>((set, get) => ({
     set({ adapter, videoId, error: null, status: "loading" }),
 
   detachAdapter: () => {
+    // NB: do not clear pendingWholeClipLoop / seekToMarkerAOnReady here — a new
+    // source's seed (in a layout effect) may run before the old adapter's
+    // cleanup, and clearing them would drop the new source's armed defaults.
+    // `resetForNewSource` owns clearing them.
+    set({ adapter: null, status: "idle" });
+  },
+
+  resetForNewSource: () => {
     pendingWholeClipLoop = false;
     seekToMarkerAOnReady = false;
-    set({ adapter: null, status: "idle" });
+    set({
+      duration: 0,
+      error: null,
+      status: "idle",
+      loop: initialLoopState,
+      speed: initialSpeedState,
+      activeMarker: "A",
+    });
   },
 
   setStatus: (status) => set({ status }),
@@ -300,12 +317,23 @@ export const usePlayerStore = create<PlayerStoreState>((set, get) => ({
   },
 
   moveMarker: (marker, seconds) => {
-    const { duration, loop } = get();
-    set(applyLoop(moveMarkerState(loop, marker, seconds, duration)));
+    const { duration, loop, adapter, seekTo } = get();
+    const next = moveMarkerState(loop, marker, seconds, duration);
+    set(applyLoop(next));
+    // If marker A moves ahead of the playhead, follow it to A (keeping the
+    // current play/pause state — seeking doesn't start or stop playback).
+    if (
+      marker === "A" &&
+      next.markerA != null &&
+      adapter != null &&
+      adapter.getCurrentTime() < next.markerA
+    ) {
+      seekTo(next.markerA);
+    }
   },
 
   nudgeActiveMarker: (deltaSeconds) => {
-    const { loop, activeMarker, duration } = get();
+    const { loop, activeMarker, duration, adapter, seekTo } = get();
     const current = activeMarker === "A" ? loop.markerA : loop.markerB;
     if (current == null) return;
     const next = moveMarkerState(
@@ -315,6 +343,14 @@ export const usePlayerStore = create<PlayerStoreState>((set, get) => ({
       duration,
     );
     set(applyLoop(next));
+    if (
+      activeMarker === "A" &&
+      next.markerA != null &&
+      adapter != null &&
+      adapter.getCurrentTime() < next.markerA
+    ) {
+      seekTo(next.markerA);
+    }
   },
 
   clearMarkerA: () => {

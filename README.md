@@ -141,15 +141,20 @@ interface PlayerAdapter {
 }
 ```
 
-- `YouTubePlayerAdapter` is the only production implementation. **Every**
-  YouTube-specific concern — the `YT.Player` object, its numeric state codes,
-  and its error codes — is confined to this class. No presentational component
-  imports anything from YouTube.
-- `MockPlayerAdapter` implements the same contract with a virtual clock for
-  deterministic tests.
-- **Adding another source later** (Instagram, Vimeo, a local file) means
-  writing one new class that satisfies `PlayerAdapter` and registering it in
-  `use-player-mount`. No UI, store, or loop code changes.
+- `YouTubePlayerAdapter` — the YouTube IFrame source. **Every** YouTube-specific
+  concern (the `YT.Player` object, its numeric state codes, its error codes) is
+  confined to this class. No presentational component imports anything from
+  YouTube.
+- `LocalFilePlayerAdapter` — plays a **video or audio file the user supplies
+  from their own device** (e.g. a clip they already downloaded) via a
+  same-origin hidden `<video>`. Because we control that element, local files get
+  the _full_ practice contract — frame-accurate `seekTo`, free `setPlaybackRate`,
+  loop, duration, volume — identical UX to YouTube. Files persist across reloads
+  in IndexedDB (`?src=local:<id>`); nothing is uploaded or downloaded by the app.
+- `MockPlayerAdapter` — a virtual-clock implementation for deterministic tests.
+- **Adding another source later** (Vimeo, etc.) means writing one new class that
+  satisfies `PlayerAdapter` and registering it in `use-player-mount`. No UI,
+  store, or loop code changes — the local-file adapter above was added this way.
 
 ---
 
@@ -161,14 +166,19 @@ The practice route is fully shareable:
 /practice?v=VIDEO_ID&a=43.12&b=49.87&speed=0.75&loop=1
 ```
 
-| Param   | Meaning                        | Validation / fallback                     |
-| ------- | ------------------------------ | ----------------------------------------- |
-| `v`     | YouTube video ID (required)    | Must match `[A-Za-z0-9_-]{11}` or → error |
-| `a`     | Loop start (seconds)           | Non-negative finite number, else dropped  |
-| `b`     | Loop end (seconds)             | Non-negative; dropped if `b ≤ a`          |
-| `speed` | Requested playback rate        | Clamped to `[0.25, 2]`, else dropped      |
-| `loop`  | Loop enabled                   | `1`/`true` → on                           |
-| `mock`  | Use the mock adapter (testing) | `1` → mock                                |
+| Param   | Meaning                          | Validation / fallback                     |
+| ------- | -------------------------------- | ----------------------------------------- |
+| `v`     | YouTube video ID                 | Must match `[A-Za-z0-9_-]{11}` or → error |
+| `src`   | Local file source `local:<id>`   | Reopens the IndexedDB-cached file         |
+| `a`     | Loop start (seconds)             | Non-negative finite number, else dropped  |
+| `b`     | Loop end (seconds)               | Non-negative; dropped if `b ≤ a`          |
+| `speed` | Requested playback rate          | Clamped to `[0.25, 2]`, else dropped      |
+| `loop`  | Loop enabled                     | `1`/`true` → on                           |
+| `mock`  | Use the mock adapter (testing)   | `1` → mock                                |
+
+Either `v` (YouTube) or `src=local:<id>` (a local file) identifies the source.
+A `local:` link only reopens on the same browser, since the file lives in this
+device's IndexedDB — it is never uploaded.
 
 Every parameter is validated with Zod; invalid values fall back safely and
 never crash the route. Shareable state is mirrored into the URL with debounced

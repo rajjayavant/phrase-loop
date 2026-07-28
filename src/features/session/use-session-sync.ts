@@ -7,8 +7,11 @@ import { saveSession } from "./session-storage";
 /**
  * Persists the practice session to localStorage (keyed by video ID) whenever
  * meaningful state changes, debounced. Playhead time is never persisted.
+ *
+ * Pass `null` to disable persistence (e.g. for local files, whose markers ride
+ * in the URL instead).
  */
-export function useSessionSync(videoId: string) {
+export function useSessionSync(videoId: string | null) {
   const markerA = usePlayerStore((s) => s.loop.markerA);
   const markerB = usePlayerStore((s) => s.loop.markerB);
   const loopEnabled = usePlayerStore((s) => s.loop.enabled);
@@ -20,6 +23,7 @@ export function useSessionSync(videoId: string) {
   const timelineMode = usePlayerStore((s) => s.timelineMode);
 
   React.useEffect(() => {
+    if (!videoId) return;
     const timer = window.setTimeout(() => {
       saveSession({
         videoId,

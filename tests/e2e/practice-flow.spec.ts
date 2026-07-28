@@ -1,9 +1,14 @@
+import { fileURLToPath } from "node:url";
 import { test, expect, type Page } from "@playwright/test";
 
 /**
  * Critical practice flows, driven against the deterministic mock adapter
  * (`?mock=1`) so tests never depend on live YouTube playback.
  */
+
+const SAMPLE_MEDIA = fileURLToPath(
+  new URL("./fixtures/sample.mp4", import.meta.url),
+);
 
 const VIDEO_ID = "dQw4w9WgXcQ";
 const practiceUrl = (params = "") =>
@@ -175,4 +180,39 @@ test("opens the keyboard shortcuts dialog", async ({ page }) => {
   await expect(
     page.getByRole("heading", { name: "Keyboard shortcuts" }),
   ).not.toBeVisible();
+});
+
+test("opening a local media file plays it with full practice controls", async ({
+  page,
+}) => {
+  await page.goto(practiceUrl());
+  await page.waitForTimeout(500);
+
+  // Pick a local file via the hidden file input (same input the button opens).
+  await page.locator('input[type="file"]').setInputFiles(SAMPLE_MEDIA);
+
+  // Routes into local mode and loads the file.
+  await expect(page).toHaveURL(/src=local%3A[a-f0-9]+/);
+  await expect(
+    page.getByRole("button", { name: "Start playback" }),
+  ).toBeVisible();
+
+  // A whole-clip loop is armed (fixture is 12s) — same default as YouTube.
+  await openAdvanced(page);
+  await expect(page.getByLabel("Marker A timestamp")).toHaveValue("00:00.000");
+  await expect(page.getByLabel("Marker B timestamp")).toHaveValue("00:12.000");
+
+  // Full seek/loop control: redefine a tight loop precisely.
+  const aField = page.getByLabel("Marker A timestamp");
+  await aField.fill("00:03.000");
+  await aField.press("Enter");
+  const bField = page.getByLabel("Marker B timestamp");
+  await bField.fill("00:06.000");
+  await bField.press("Enter");
+  await expect(aField).toHaveValue("00:03.000");
+  await expect(bField).toHaveValue("00:06.000");
+
+  // Speed control works on local media too.
+  await page.getByRole("button", { name: "0.5×" }).first().click();
+  await expect(page.getByText("0.5×").first()).toBeVisible();
 });

@@ -24,6 +24,12 @@ export function CopyLinkButton({ trigger }: { trigger: React.ReactElement }) {
       speed: state.speed.requestedRate,
       loop: state.loop.enabled,
     });
+    // Local sources are keyed `local:<id>`; rewrite `v` → `src` so the link
+    // reopens the cached file (same browser only).
+    if (state.videoId.startsWith("local:")) {
+      params.delete("v");
+      params.set("src", state.videoId);
+    }
     return `${window.location.origin}/practice?${params.toString()}`;
   }, []);
 

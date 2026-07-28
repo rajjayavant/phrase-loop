@@ -2,15 +2,20 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { usePlayerMount, type AdapterKind } from "../hooks/use-player-mount";
+import { usePlayerMount } from "../hooks/use-player-mount";
 import { usePlayheadClock } from "../hooks/use-playhead";
 import { usePlayerStore } from "../stores/player-store";
+import {
+  useLocalSourceStore,
+  loadCachedFile,
+} from "../stores/local-source";
 import { PlayerSurface } from "./player-surface";
 import { TransportControls } from "./transport-controls";
 import { Timeline } from "@/features/loop/components/timeline";
 import { SpeedRow } from "./speed-row";
 import { AdvancedSettings } from "./advanced-settings";
 import { PracticeHeader } from "./practice-header";
+import { LocalSourceMissing } from "./local-source-missing";
 import { useKeyboardShortcuts } from "@/features/shortcuts/use-keyboard-shortcuts";
 import { useSessionSync } from "@/features/session/use-session-sync";
 import { useUrlSync } from "@/features/session/use-url-sync";
@@ -20,36 +25,115 @@ import {
 } from "@/features/session/session-storage";
 import { announce } from "@/features/session/announcer";
 
+export type PracticeSource = "youtube" | "mock" | "local";
+
 export interface PracticeWorkspaceProps {
-  videoId: string;
+  source: PracticeSource;
+  /** YouTube id (youtube/mock sources). */
+  videoId?: string;
+  /** Local source id (local source). */
+  localId?: string;
   initialA: number | null;
   initialB: number | null;
   initialSpeed: number | null;
   initialLoop: boolean | null;
-  adapterKind: AdapterKind;
 }
 
 /**
  * The main practice instrument. Composes the player surface, timeline,
  * transport, loop/marker/speed controls, and wires the shared behaviors
  * (keyboard, session, URL sync). One integrated unit — not a dashboard.
+ *
+ * Source-agnostic: a YouTube id or a local file both render the exact same UX,
+ * differing only in which adapter backs the player.
  */
-export function PracticeWorkspace({
+export function PracticeWorkspace(props: PracticeWorkspaceProps) {
+  if (props.source === "local") {
+    return <LocalWorkspace {...props} />;
+  }
+  return <SourceWorkspace {...props} file={null} kind={props.source} />;
+}
+
+/**
+ * Resolves the local file (from the in-memory store, else the IndexedDB cache)
+ * before mounting the shared workspace. Shows a friendly picker if the file is
+ * gone (e.g. cleared cache after a reload).
+ */
+function LocalWorkspace(props: PracticeWorkspaceProps) {
+  const current = useLocalSourceStore((s) => s.current);
+  const restore = useLocalSourceStore((s) => s.restore);
+  const [status, setStatus] = React.useState<
+    "resolving" | "ready" | "missing"
+  >(current ? "ready" : "resolving");
+
+  const localId = props.localId ?? "";
+
+  React.useEffect(() => {
+    if (current) {
+      setStatus("ready");
+      return;
+    }
+    let cancelled = false;
+    void loadCachedFile(localId).then((file) => {
+      if (cancelled) return;
+      if (file) {
+        restore({ id: localId, file, name: file.name });
+        setStatus("ready");
+      } else {
+        setStatus("missing");
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [current, localId, restore]);
+
+  if (status === "missing") {
+    return <LocalSourceMissing />;
+  }
+  if (status === "resolving" || !current) {
+    return (
+      <div className="flex min-h-dvh flex-col">
+        <PracticeHeader />
+      </div>
+    );
+  }
+
+  return <SourceWorkspace {...props} file={current.file} kind="local" />;
+}
+
+interface SourceWorkspaceProps extends PracticeWorkspaceProps {
+  file: File | null;
+  kind: "youtube" | "mock" | "local";
+}
+
+function SourceWorkspace({
+  source,
   videoId,
+  localId,
   initialA,
   initialB,
   initialSpeed,
   initialLoop,
-  adapterKind,
-}: PracticeWorkspaceProps) {
-  // Seed the store exactly once, before mount, with this precedence:
+  file,
+  kind,
+}: SourceWorkspaceProps) {
+  // A stable key for this source, used for the mount effect and session.
+  const sourceKey = source === "local" ? `local:${localId ?? ""}` : videoId ?? "";
+
+  // Seed the store once per source (reset first, so a prior source's markers /
+  // duration never leak in). Runs in a layout effect — not during render — so
+  // it never triggers a setState-in-render warning. Precedence:
   //   1. Markers in the URL (a shared link) always win.
-  //   2. Otherwise a previously saved session for this video is restored
-  //      silently, so returning users find their setup intact.
-  //   3. Otherwise this is a fresh video: arm a whole-clip A→B loop (A at the
-  //      start, B at the end, looping on) once the duration is known.
-  React.useState(() => {
+  //   2. Otherwise a previously saved session (YouTube only) is restored.
+  //   3. Otherwise it's fresh: arm a whole-clip A→B loop once duration is known.
+  const seededKey = React.useRef<string | null>(null);
+  React.useLayoutEffect(() => {
+    if (seededKey.current === sourceKey) return;
+    seededKey.current = sourceKey;
+
     const store = usePlayerStore.getState();
+    store.resetForNewSource();
 
     if (initialA != null || initialB != null) {
       store.hydrate({
@@ -58,10 +142,10 @@ export function PracticeWorkspace({
         loopEnabled: initialLoop ?? true,
         requestedSpeed: initialSpeed ?? 1,
       });
-      return null;
+      return;
     }
 
-    const saved = loadSession(videoId);
+    const saved = source === "local" ? null : loadSession(videoId ?? "");
     if (
       saved &&
       (saved.markerA != null ||
@@ -79,28 +163,34 @@ export function PracticeWorkspace({
         timelineMode: saved.timelineMode,
       });
       announce("Your previous practice settings were restored");
-      return null;
+      return;
     }
 
-    // Fresh video → whole-clip loop by default.
     if (initialSpeed != null) {
       store.hydrate({ requestedSpeed: initialSpeed });
     }
     store.requestWholeClipLoop();
-    return null;
-  });
+  }, [sourceKey, source, videoId, initialA, initialB, initialSpeed, initialLoop]);
 
-  // Remember this as the most recently used video immediately, so a later
-  // visit to "/" reopens it even before any session-sync debounce fires.
+  // Remember the most recently used YouTube video so a bare visit to "/"
+  // reopens it. (Local files aren't remembered this way — they live in cache.)
   React.useEffect(() => {
-    setLastVideoId(videoId);
-  }, [videoId]);
+    if (source !== "local" && videoId) setLastVideoId(videoId);
+  }, [source, videoId]);
 
-  const { containerRef } = usePlayerMount({ videoId, kind: adapterKind });
+  const { containerRef } = usePlayerMount({
+    videoId: sourceKey,
+    kind,
+    file,
+  });
   usePlayheadClock();
   useKeyboardShortcuts();
-  useSessionSync(videoId);
-  useUrlSync(videoId);
+  useSessionSync(source === "local" ? null : (videoId ?? null));
+  useUrlSync(
+    source === "local"
+      ? { localId: localId ?? "" }
+      : { videoId: videoId ?? "" },
+  );
 
   return (
     <div className="flex min-h-dvh flex-col">

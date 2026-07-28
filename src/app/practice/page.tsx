@@ -18,18 +18,37 @@ export default async function PracticePage({
   const params = parsePracticeParams(rawParams);
   const useMock = rawParams.mock === "1";
 
+  // Local-file source: `?src=local:<id>`. The file itself lives client-side
+  // (in-memory / IndexedDB), so the workspace resolves it after hydration.
+  const srcParam = Array.isArray(rawParams.src)
+    ? rawParams.src[0]
+    : rawParams.src;
+  if (srcParam && srcParam.startsWith("local")) {
+    const localId = srcParam.includes(":") ? srcParam.split(":")[1] : "";
+    return (
+      <PracticeWorkspace
+        source="local"
+        localId={localId ?? ""}
+        initialA={params.a}
+        initialB={params.b}
+        initialSpeed={params.speed}
+        initialLoop={params.loop}
+      />
+    );
+  }
+
   if (!params.videoId) {
     return <InvalidLink />;
   }
 
   return (
     <PracticeWorkspace
+      source={useMock ? "mock" : "youtube"}
       videoId={params.videoId}
       initialA={params.a}
       initialB={params.b}
       initialSpeed={params.speed}
       initialLoop={params.loop}
-      adapterKind={useMock ? "mock" : "youtube"}
     />
   );
 }

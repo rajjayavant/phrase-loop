@@ -94,14 +94,7 @@ export function PlayerSurface({ containerRef }: PlayerSurfaceProps) {
             <p className="mt-1 max-w-sm text-small-body text-secondary">
               {error.message}
             </p>
-            <a
-              href={`https://www.youtube.com/watch?v=${usePlayerStore.getState().videoId ?? ""}`}
-              target="_blank"
-              rel="noreferrer noopener"
-              className="mt-4 text-small-body font-medium text-accent underline-offset-4 hover:underline"
-            >
-              Open on YouTube →
-            </a>
+            <YouTubeFallbackLink />
           </Overlay>
         )}
       </div>
@@ -126,6 +119,23 @@ function Overlay({
     >
       {children}
     </div>
+  );
+}
+
+/** The "Open on YouTube" fallback — only shown for real YouTube ids. */
+function YouTubeFallbackLink() {
+  const videoId = usePlayerStore((s) => s.videoId);
+  const isYouTube = videoId != null && /^[A-Za-z0-9_-]{11}$/.test(videoId);
+  if (!isYouTube) return null;
+  return (
+    <a
+      href={`https://www.youtube.com/watch?v=${videoId}`}
+      target="_blank"
+      rel="noreferrer noopener"
+      className="mt-4 text-small-body font-medium text-accent underline-offset-4 hover:underline"
+    >
+      Open on YouTube →
+    </a>
   );
 }
 

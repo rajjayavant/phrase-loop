@@ -7,6 +7,7 @@ import { Button, Tooltip } from "@/components/ui";
 import { CopyLinkButton } from "@/features/session/copy-link-button";
 import { ShortcutsDialog } from "@/features/shortcuts/shortcuts-dialog";
 import { HeaderLinkInput } from "@/features/link-input/header-link-input";
+import { FilePickerButton } from "@/features/link-input/file-picker-button";
 
 export function PracticeHeader() {
   return (
@@ -23,8 +24,9 @@ export function PracticeHeader() {
         </Link>
 
         {/* Load-a-link command field: inline on wide screens, own row on narrow. */}
-        <div className="order-3 w-full min-w-0 sm:order-none sm:mx-2 sm:w-auto sm:max-w-md sm:flex-1">
+        <div className="order-3 flex w-full min-w-0 items-center gap-2 sm:order-none sm:mx-2 sm:w-auto sm:max-w-md sm:flex-1">
           <HeaderLinkInput />
+          <FilePickerButton compact className="shrink-0" />
         </div>
 
         <div className="ml-auto flex items-center gap-1.5">
