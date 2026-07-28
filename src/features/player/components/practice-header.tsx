@@ -17,7 +17,7 @@ export function PracticeHeader() {
       <div className="relative mx-auto flex w-full max-w-5xl flex-wrap items-center gap-x-4 gap-y-2.5 px-4 py-4 sm:px-6">
         <Link
           href="/"
-          aria-label="Looper home"
+          aria-label="PhraseLoop home"
           className="rounded-control transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
         >
           <Wordmark size="sm" />

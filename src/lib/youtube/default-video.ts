@@ -4,4 +4,4 @@
  * guitar lesson works well as a musician-facing default. Overridable via env.
  */
 export const DEFAULT_VIDEO_ID =
-  process.env.NEXT_PUBLIC_DEFAULT_VIDEO_ID ?? "jNQXAC9IVRw";
+  process.env.NEXT_PUBLIC_DEFAULT_VIDEO_ID ?? "raZBLp4zowg";

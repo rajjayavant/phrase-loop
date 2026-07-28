@@ -32,7 +32,9 @@ export const DialogContent = React.forwardRef<
         "rounded-card border border-border bg-surface p-6 shadow-dialog",
         "max-h-[85vh] overflow-y-auto",
         "focus:outline-none",
-        "data-[state=open]:animate-[content-in_var(--duration-dialog)_var(--ease-emphasized)]",
+        // dialog-in, not content-in: the latter's transform would override the
+        // centring translate above and make the panel slide in from off-centre.
+        "data-[state=open]:animate-[dialog-in_var(--duration-dialog)_var(--ease-emphasized)]",
         className,
       )}
       {...props}

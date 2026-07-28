@@ -151,6 +151,29 @@
   }
 }
 
+/*
+ * Centred dialogs need their own entrance.
+ *
+ * A dialog is centred with `-translate-x-1/2 -translate-y-1/2`, but an
+ * animation's `transform` replaces that utility outright rather than composing
+ * with it. Using `content-in` on a centred element therefore drops the
+ * centring for the duration of the animation: the panel appears low and to the
+ * right, then snaps to the middle as the animation ends.
+ *
+ * Carrying the -50%/-50% offset through both keyframes keeps it centred the
+ * whole way, so it fades and lifts in place.
+ */
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) translateY(6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) translateY(0) scale(1);
+  }
+}
+
 @keyframes rise-in {
   from {
     opacity: 0;

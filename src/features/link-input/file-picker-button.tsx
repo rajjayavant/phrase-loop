@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { FolderOpen } from "lucide-react";
+import { Upload } from "lucide-react";
 import { Button } from "@/components/ui";
 import { toast } from "@/components/ui";
 import {
@@ -67,11 +67,11 @@ export function FilePickerButton({
         className={cn("gap-1.5", className)}
         onClick={() => inputRef.current?.click()}
       >
-        <FolderOpen className="h-4 w-4" />
+        <Upload className="h-4 w-4" />
         {compact ? (
-          <span className="hidden sm:inline">Open file</span>
+          <span className="hidden sm:inline">Upload video</span>
         ) : (
-          "Open a file"
+          "Upload video"
         )}
       </Button>
     </>

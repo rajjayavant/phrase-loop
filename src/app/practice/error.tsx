@@ -14,7 +14,7 @@ export default function PracticeError({
   return (
     <div className="flex min-h-dvh flex-col">
       <header className="mx-auto flex w-full max-w-6xl items-center px-5 py-4">
-        <Link href="/" aria-label="Looper home">
+        <Link href="/" aria-label="PhraseLoop home">
           <Wordmark size="sm" />
         </Link>
       </header>

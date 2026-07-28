@@ -28,11 +28,53 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
+const SITE_URL = "https://phraseloop.online";
+// The title leads with the terms people actually search — "loop a section",
+// "AB repeat", "slow down" — rather than the brand alone, which nobody yet
+// knows to look for.
+const TITLE = "PhraseLoop — Loop a Section of Any Video | AB Repeat for Practice";
+const DESCRIPTION =
+  "Slow down any YouTube video or your own file, mark the exact section you need, and repeat it until it feels natural. A focused practice instrument for musicians.";
+
 export const metadata: Metadata = {
-  title: "Looper — Practice difficult passages, one loop at a time",
-  description:
-    "Slow down any YouTube video, mark the exact section you need, and repeat it until it feels natural. A focused practice instrument for musicians.",
-  applicationName: "Looper",
+  metadataBase: new URL(SITE_URL),
+  title: TITLE,
+  description: DESCRIPTION,
+  applicationName: "PhraseLoop",
+  keywords: [
+    "loop a section of a video",
+    "AB repeat",
+    "slow down video for practice",
+    "YouTube looper",
+    "music practice tool",
+    "loop YouTube video",
+    "practice difficult passages",
+  ],
+  alternates: { canonical: "/" },
+  // icon.png and apple-icon.png are picked up from src/app automatically;
+  // naming them here keeps the intent explicit.
+  icons: { icon: "/icon.png", apple: "/apple-icon.png" },
+  openGraph: {
+    type: "website",
+    url: SITE_URL,
+    siteName: "PhraseLoop",
+    title: TITLE,
+    description: DESCRIPTION,
+    images: [
+      {
+        url: "/opengraph-image.png",
+        width: 1200,
+        height: 630,
+        alt: "PhraseLoop — a practice tool for musicians",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: TITLE,
+    description: DESCRIPTION,
+    images: ["/opengraph-image.png"],
+  },
 };
 
 export const viewport: Viewport = {

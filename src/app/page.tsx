@@ -33,7 +33,7 @@ export default function RootPage() {
         Tuning your practice space…
       </div>
       <span className="sr-only" role="status">
-        Loading Looper
+        Loading PhraseLoop
       </span>
     </div>
   );

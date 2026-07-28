@@ -8,9 +8,14 @@ export interface WordmarkProps extends React.HTMLAttributes<HTMLSpanElement> {
 }
 
 /**
- * The Looper wordmark: an accent glyph badge (a hardware-style logo tile) beside
- * the Poppins wordmark set tight. The looping mark is drawn inline so the brand
+ * The PhraseLoop wordmark: an accent glyph badge (a hardware-style logo tile)
+ * beside the Poppins wordmark set tight. The mark is drawn inline so the brand
  * needs no image asset and scales crisply.
+ *
+ * The glyph is a pair of repeat barlines from music notation enclosing a short
+ * waveform: literally a phrase, marked to repeat. It borrows the musician's own
+ * vocabulary rather than the generic loop-arrow every media player already
+ * uses, and the uneven bars keep it reading as audio rather than as pattern.
  */
 export function Wordmark({
   className,
@@ -43,10 +48,30 @@ export function Wordmark({
         aria-hidden="true"
       >
         <svg viewBox="0 0 24 24" className={glyph} fill="none">
+          {/* Opening repeat barline: heavy rule plus the two dots. */}
           <path
-            d="M6.5 8.2a3.6 3.6 0 1 0 0 7.2c2.3 0 3.5-1.9 5.3-3.6 1.8-1.7 2.9-3.6 5.2-3.6a3.6 3.6 0 1 1 0 7.2c-2.3 0-3.4-1.9-5.2-3.6C10.1 10.1 8.9 8.2 6.5 8.2Z"
+            d="M4.2 5.4v13.2"
             stroke="currentColor"
-            strokeWidth="2"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+          />
+          <circle cx="7.4" cy="9.6" r="1.2" fill="currentColor" />
+          <circle cx="7.4" cy="14.4" r="1.2" fill="currentColor" />
+          {/* Closing repeat barline, mirrored. */}
+          <circle cx="16.6" cy="9.6" r="1.2" fill="currentColor" />
+          <circle cx="16.6" cy="14.4" r="1.2" fill="currentColor" />
+          <path
+            d="M19.8 5.4v13.2"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+          />
+          {/* The phrase itself — two uneven bars, so it reads as audio
+              rather than as decoration. */}
+          <path
+            d="M10.8 9.8v4.4M13.2 7.2v9.6"
+            stroke="currentColor"
+            strokeWidth="2.2"
             strokeLinecap="round"
           />
         </svg>
@@ -58,7 +83,7 @@ export function Wordmark({
             text,
           )}
         >
-          Looper
+          PhraseLoop
         </span>
       )}
     </span>

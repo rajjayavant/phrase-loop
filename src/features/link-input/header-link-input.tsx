@@ -52,7 +52,7 @@ export function HeaderLinkInput() {
             setValue(e.target.value);
             if (error) setError(false);
           }}
-          placeholder="Paste a YouTube link to load another video"
+          placeholder="Paste a YouTube link"
           aria-label="Load another YouTube video"
           aria-invalid={error}
           enterKeyHint="go"

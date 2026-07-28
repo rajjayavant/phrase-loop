@@ -15,7 +15,7 @@ export function LocalSourceMissing() {
   return (
     <div className="flex min-h-dvh flex-col">
       <header className="mx-auto flex w-full max-w-5xl items-center px-5 py-4">
-        <Link href="/" aria-label="Looper home">
+        <Link href="/" aria-label="PhraseLoop home">
           <Wordmark size="sm" />
         </Link>
       </header>

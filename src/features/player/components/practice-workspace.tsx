@@ -234,7 +234,7 @@ function SourceWorkspace({
 function MobileFallbackFooter() {
   return (
     <p className="sr-only">
-      <Link href="/">Return to Looper home</Link>
+      <Link href="/">Return to PhraseLoop home</Link>
     </p>
   );
 }
