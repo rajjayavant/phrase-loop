@@ -5,15 +5,11 @@ import {
   Pause,
   Play,
   RotateCcw,
-  SkipBack,
-  ChevronLeft,
-  ChevronRight,
   ChevronsLeft,
   ChevronsRight,
 } from "lucide-react";
 import { usePlayerStore } from "../stores/player-store";
 import { IconButton, Tooltip } from "@/components/ui";
-import { PlayheadTime } from "./playhead-time";
 import { VolumeControl } from "./volume-control";
 import { LoopToggleButton } from "@/features/loop/components/loop-toggle-button";
 
@@ -30,7 +26,6 @@ export function TransportControls() {
   const status = usePlayerStore((s) => s.status);
   const togglePlay = usePlayerStore((s) => s.togglePlay);
   const seekBy = usePlayerStore((s) => s.seekBy);
-  const restartVideo = usePlayerStore((s) => s.restartVideo);
   const restartLoop = usePlayerStore((s) => s.restartLoop);
   const loopReady = usePlayerStore((s) => s.loop.markerA != null);
 
@@ -40,35 +35,40 @@ export function TransportControls() {
 
   return (
     <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
-      {/* Left zone: coarse back seek + live time (mobile shows it here since the
-          console readout is desktop-only in the dock). */}
-      <div className="flex min-w-0 items-center gap-1">
-        <div className="mr-1 flex items-baseline gap-1.5 text-timestamp lg:hidden">
-          <PlayheadTime precise className="text-primary" />
-        </div>
-        <Tooltip content="Back 5s">
+      {/* Left: the loop toggle on mobile, empty on desktop.
+          Three buttons on the right could not fit beside the centre cluster
+          below ~375px — the loop and forward buttons overlapped. Moving loop
+          here spends the otherwise-empty column and balances both sides, so
+          the centre still reads as centred. On desktop there is room, and
+          loop belongs with the other loop tools, so it moves back. */}
+      <div className="flex min-w-0 items-center gap-0.5">
+        <span className="flex items-center gap-0.5 lg:hidden">
+          <LoopToggleButton size="sm" />
+          <Tooltip content="Jump to loop start" shortcut="R">
+            <IconButton
+              label="Restart loop from marker A"
+              variant="ghost"
+              size="sm"
+              onClick={restartLoop}
+              disabled={disabled || !loopReady}
+            >
+              <RotateCcw />
+            </IconButton>
+          </Tooltip>
+        </span>
+      </div>
+
+      {/* Centre: the transport cluster. ±5s sit either side of play so the
+          three read as one control. Fine 1s seeking is keyboard-only (← / →). */}
+      <div className="flex items-center gap-1 sm:gap-1.5">
+        <Tooltip content="Back 5s" shortcut="⇧←">
           <IconButton
             label="Seek backward 5 seconds"
             variant="ghost"
-            size="sm"
             onClick={() => seekBy(-5)}
             disabled={disabled}
           >
             <ChevronsLeft />
-          </IconButton>
-        </Tooltip>
-      </div>
-
-      {/* Center zone: the transport cluster — play/pause is the visual center */}
-      <div className="flex items-center gap-1.5">
-        <Tooltip content="Back 1s" shortcut="←">
-          <IconButton
-            label="Seek backward 1 second"
-            variant="ghost"
-            onClick={() => seekBy(-1)}
-            disabled={disabled}
-          >
-            <ChevronLeft />
           </IconButton>
         </Tooltip>
 
@@ -84,54 +84,39 @@ export function TransportControls() {
           </IconButton>
         </Tooltip>
 
-        <Tooltip content="Forward 1s" shortcut="→">
-          <IconButton
-            label="Seek forward 1 second"
-            variant="ghost"
-            onClick={() => seekBy(1)}
-            disabled={disabled}
-          >
-            <ChevronRight />
-          </IconButton>
-        </Tooltip>
-      </div>
-
-      {/* Right zone: loop toggle + forward + restart + volume */}
-      <div className="flex min-w-0 items-center justify-end gap-1">
-        <Tooltip content="Forward 5s">
+        <Tooltip content="Forward 5s" shortcut="⇧→">
           <IconButton
             label="Seek forward 5 seconds"
             variant="ghost"
-            size="sm"
             onClick={() => seekBy(5)}
             disabled={disabled}
           >
             <ChevronsRight />
           </IconButton>
         </Tooltip>
-        <LoopToggleButton size="sm" />
-        <Tooltip content="Jump to loop start" shortcut="R">
-          <IconButton
-            label="Restart loop from marker A"
-            variant="ghost"
-            size="sm"
-            onClick={restartLoop}
-            disabled={disabled || !loopReady}
-          >
-            <SkipBack />
-          </IconButton>
-        </Tooltip>
-        <Tooltip content="Restart video">
-          <IconButton
-            label="Restart video from the beginning"
-            variant="ghost"
-            size="sm"
-            onClick={restartVideo}
-            disabled={disabled}
-          >
-            <RotateCcw />
-          </IconButton>
-        </Tooltip>
+      </div>
+
+      {/* Right: loop tools + volume on desktop; volume alone on mobile, where
+          the loop pair lives in the left zone instead.
+
+          The restart glyph belongs to "jump to loop start" — that IS the
+          restart a musician wants mid-practice. Restarting the whole video is
+          a seek to zero, which the timeline already does. */}
+      <div className="flex min-w-0 items-center justify-end gap-0.5 sm:gap-1">
+        <span className="hidden items-center gap-0.5 sm:gap-1 lg:inline-flex">
+          <LoopToggleButton size="sm" />
+          <Tooltip content="Jump to loop start" shortcut="R">
+            <IconButton
+              label="Restart loop from marker A"
+              variant="ghost"
+              size="sm"
+              onClick={restartLoop}
+              disabled={disabled || !loopReady}
+            >
+              <RotateCcw />
+            </IconButton>
+          </Tooltip>
+        </span>
         <VolumeControl />
       </div>
     </div>

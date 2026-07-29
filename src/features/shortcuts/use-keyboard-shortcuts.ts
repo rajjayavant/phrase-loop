@@ -64,13 +64,15 @@ export function useKeyboardShortcuts() {
           // Shift+J increases; J decreases.
           store.nudgeSpeed(event.shiftKey ? 0.05 : -0.05);
           return;
+        // Plain arrow = 1s, Shift+arrow = 5s. The 5s jump used to be a button
+        // on the transport bar; it lives here now so the bar stays uncluttered.
         case "ArrowLeft":
           event.preventDefault();
-          store.seekBy(event.shiftKey ? -0.1 : -1);
+          store.seekBy(event.shiftKey ? -5 : -1);
           return;
         case "ArrowRight":
           event.preventDefault();
-          store.seekBy(event.shiftKey ? 0.1 : 1);
+          store.seekBy(event.shiftKey ? 5 : 1);
           return;
         case "BracketLeft":
           event.preventDefault();

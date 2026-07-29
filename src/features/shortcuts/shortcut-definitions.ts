@@ -66,15 +66,15 @@ export const SHORTCUTS: ShortcutDefinition[] = [
     group: "Transport",
   },
   {
-    action: "seek-back-100ms",
+    action: "seek-back-5s",
     keys: ["Shift", "←"],
-    description: "Seek back 100 ms",
+    description: "Seek back 5 seconds",
     group: "Transport",
   },
   {
-    action: "seek-forward-100ms",
+    action: "seek-forward-5s",
     keys: ["Shift", "→"],
-    description: "Seek forward 100 ms",
+    description: "Seek forward 5 seconds",
     group: "Transport",
   },
   {

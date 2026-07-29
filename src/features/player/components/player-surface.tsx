@@ -42,12 +42,21 @@ export function PlayerSurface({
   const isReadyToStart = status === "ready";
 
   return (
-    <div className="relative">
-      {/* Ambient glow bloom behind the faceplate. */}
+    <div className="relative isolate">
+      {/* Ambient glow bloom behind the faceplate.
+       *
+       * The clipping wrapper is load-bearing, not decoration. The bloom uses a
+       * negative inset to bleed outside the faceplate; unclipped, that bleed
+       * counts as layout width. On a 390px phone the page measured 406px, so
+       * the browser zoomed out to fit and produced both scrollbars — and since
+       * pages only scroll rightward, the left bleed was clipped while the right
+       * stayed scrollable, which is why the side padding looked uneven. */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -inset-x-8 -top-6 bottom-2 bg-glow blur-2xl"
-      />
+        className="pointer-events-none absolute inset-0 overflow-hidden"
+      >
+        <div className="absolute -inset-x-8 -top-6 bottom-2 bg-glow blur-2xl" />
+      </div>
       <div
         className={cn(
           "relative overflow-hidden rounded-card border border-border bg-black",
