@@ -43,6 +43,7 @@ import {
   setAvailableRates,
   type PlaybackSpeedState,
 } from "./speed-state";
+import { emitPlayhead } from "../hooks/playhead-listeners";
 import { announce } from "@/features/session/announcer";
 import { trackEvent } from "@/features/session/analytics";
 import { formatTimestamp } from "@/lib/formatting/timestamp";
@@ -272,6 +273,14 @@ export const usePlayerStore = create<PlayerStoreState>((set, get) => ({
       duration > 0 ? Math.min(seconds, duration) : seconds,
     );
     adapter.seekTo(clamped);
+    // The rAF clock only runs while playing, so a seek made while paused would
+    // leave every playhead (timeline, waveform) showing its old position until
+    // playback resumed. Push the new position out immediately.
+    //
+    // We pass `clamped` rather than re-reading the adapter: YouTube's
+    // getCurrentTime still reports the pre-seek position for a frame or two,
+    // which would paint the old spot and then jump.
+    emitPlayhead(clamped);
   },
 
   seekBy: (delta) => {

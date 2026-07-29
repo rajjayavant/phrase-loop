@@ -2,8 +2,7 @@
 
 import * as React from "react";
 import { usePlayerStore } from "../stores/player-store";
-
-type TimeListener = (currentTime: number) => void;
+import { emitPlayhead } from "./playhead-listeners";
 
 /**
  * A single global playhead clock.
@@ -15,9 +14,16 @@ type TimeListener = (currentTime: number) => void;
  *
  * Subscribers get time via `subscribeToPlayhead` and update the DOM directly,
  * so high-frequency playback never causes a React re-render across the tree.
+ *
+ * The clock only runs while playing. Anything that moves the playhead while
+ * paused — a seek, a marker jump — must call `emitPlayhead` itself, or every
+ * subscriber keeps rendering the stale position. `seekTo` in the player store
+ * does exactly that.
+ *
+ * The listener registry lives in `./playhead-listeners` so the store can emit
+ * without importing this module (which imports the store).
  */
 
-const listeners = new Set<TimeListener>();
 let rafId: number | null = null;
 let lastLoopCheck = 0;
 
@@ -39,7 +45,7 @@ function frame() {
     store.onTick(currentTime);
   }
 
-  for (const listener of listeners) listener(currentTime);
+  emitPlayhead(currentTime);
   rafId = requestAnimationFrame(frame);
 }
 
@@ -56,13 +62,9 @@ function stopLoop() {
   }
 }
 
-/** Subscribe to playhead time updates. Returns an unsubscribe function. */
-export function subscribeToPlayhead(listener: TimeListener): () => void {
-  listeners.add(listener);
-  return () => {
-    listeners.delete(listener);
-  };
-}
+// Re-exported so existing subscribers keep their import path.
+export { subscribeToPlayhead, emitPlayhead } from "./playhead-listeners";
+export type { TimeListener } from "./playhead-listeners";
 
 /** Read the current time on demand (outside the rAF loop). */
 export function readCurrentTime(): number {
