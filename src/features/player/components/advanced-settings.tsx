@@ -3,15 +3,16 @@
 import * as React from "react";
 import { ChevronDown, Maximize, SlidersHorizontal } from "lucide-react";
 import { MarkerControls } from "@/features/loop/components/marker-controls";
-import { SpeedPresets } from "./speed-presets";
 import { Button } from "@/components/ui";
 import { cn } from "@/lib/utilities/cn";
 
 /**
  * A single collapsible "Advanced settings" panel that holds the precision
- * tools kept out of the default view: marker editing (set/drag/nudge/exact),
- * the full speed preset grid + exact entry, and fullscreen. Collapsed by
- * default so the main surface stays calm.
+ * tools kept out of the default view: marker editing (set/drag/nudge/exact)
+ * and fullscreen. Collapsed by default so the main surface stays calm.
+ *
+ * Speed lives entirely in the always-visible SpeedRow — its slider and inline
+ * presets cover the whole range, so a second grid down here was redundant.
  */
 export function AdvancedSettings() {
   const [open, setOpen] = React.useState(false);
@@ -52,9 +53,6 @@ export function AdvancedSettings() {
         <div className="border-t border-border">
           <div className="border-b border-border px-5 py-5">
             <MarkerControls />
-          </div>
-          <div className="border-b border-border px-5 py-5">
-            <SpeedPresets />
           </div>
           <div className="px-5 py-4">
             <Button

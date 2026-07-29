@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
   formatRate,
-  getSpeedStatusMessage,
   initialSpeedState,
   nudgeRate,
   reconcileAppliedRate,
@@ -71,21 +70,26 @@ describe("nudge / reset", () => {
   });
 });
 
-describe("status message", () => {
-  it("describes an adjustment", () => {
+describe("status tracking", () => {
+  // No message is shown for any of these — the displayed rate is always the
+  // applied one, so it needs no explanation. The status field is still tracked
+  // for any future affordance, so keep it honest.
+  it("marks a quantized rate as adjusted and keeps both values", () => {
     const requested = requestRate(initialSpeedState, 0.34);
     const adjusted = reconcileAppliedRate(requested, 0.35);
-    expect(getSpeedStatusMessage(adjusted)).toContain("0.35×");
-    expect(getSpeedStatusMessage(adjusted)).toContain("0.34×");
+    expect(adjusted.status).toBe("adjusted");
+    expect(adjusted.appliedRate).toBe(0.35);
+    expect(adjusted.requestedRate).toBe(0.34);
   });
 
-  it("describes unsupported", () => {
-    const next = setAvailableRates(initialSpeedState, [1]);
-    expect(getSpeedStatusMessage(next)).toMatch(/does not support/i);
+  it("marks a player with a single rate as unsupported", () => {
+    expect(setAvailableRates(initialSpeedState, [1]).status).toBe(
+      "unsupported",
+    );
   });
 
-  it("returns null when nothing to report", () => {
-    expect(getSpeedStatusMessage(initialSpeedState)).toBeNull();
+  it("starts idle", () => {
+    expect(initialSpeedState.status).toBe("idle");
   });
 });
 

@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { usePlayerMount } from "../hooks/use-player-mount";
 import { usePlayheadClock } from "../hooks/use-playhead";
 import { usePlayerStore } from "../stores/player-store";
@@ -16,7 +17,7 @@ import { Timeline } from "@/features/loop/components/timeline";
 import { SpeedRow } from "./speed-row";
 import { AdvancedSettings } from "./advanced-settings";
 import { PracticeHeader } from "./practice-header";
-import { LocalSourceMissing } from "./local-source-missing";
+import { toast } from "@/components/ui";
 import { useKeyboardShortcuts } from "@/features/shortcuts/use-keyboard-shortcuts";
 import { useSessionSync } from "@/features/session/use-session-sync";
 import { useUrlSync } from "@/features/session/use-url-sync";
@@ -57,10 +58,15 @@ export function PracticeWorkspace(props: PracticeWorkspaceProps) {
 
 /**
  * Resolves the local file (from the in-memory store, else the IndexedDB cache)
- * before mounting the shared workspace. Shows a friendly picker if the file is
- * gone (e.g. cleared cache after a reload).
+ * before mounting the shared workspace.
+ *
+ * When the file is gone (cleared cache, or a `local:` link opened on another
+ * device) we do NOT show a dead-end page. A stale link is a dead end only if we
+ * make it one: instead we send the user to the default video and explain what
+ * happened in a toast, so they land somewhere they can immediately practice.
  */
 function LocalWorkspace(props: PracticeWorkspaceProps) {
+  const router = useRouter();
   const current = useLocalSourceStore((s) => s.current);
   const restore = useLocalSourceStore((s) => s.restore);
   const [status, setStatus] = React.useState<
@@ -89,10 +95,23 @@ function LocalWorkspace(props: PracticeWorkspaceProps) {
     };
   }, [current, localId, restore]);
 
-  if (status === "missing") {
-    return <LocalSourceMissing />;
-  }
-  if (status === "resolving" || !current) {
+  React.useEffect(() => {
+    if (status !== "missing") return;
+    // `replace`, not `push`: the stale link should not sit in history for the
+    // back button to return to.
+    router.replace("/");
+    toast.show({
+      title: "That file isn't loaded anymore",
+      description:
+        "Local files stay in the browser that opened them. Upload it again to pick up where you left off.",
+      duration: 6000,
+      // A stable id keeps a double-mount (React strict mode) from stacking two
+      // identical toasts.
+      id: "local-source-missing",
+    });
+  }, [status, router]);
+
+  if (status === "resolving" || status === "missing" || !current) {
     return (
       <div className="flex min-h-dvh flex-col">
         <PracticeHeader />

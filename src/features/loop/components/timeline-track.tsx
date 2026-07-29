@@ -116,6 +116,7 @@ export function TimelineTrack({
             marker="A"
             percent={aPercent}
             dragging={dragTarget === "markerA"}
+            compact={compact}
             onPointerDown={handlePointerDown("markerA")}
             onPointerMove={handlePointerMove}
             onPointerUp={handlePointerUp}
@@ -127,6 +128,7 @@ export function TimelineTrack({
             marker="B"
             percent={bPercent}
             dragging={dragTarget === "markerB"}
+            compact={compact}
             onPointerDown={handlePointerDown("markerB")}
             onPointerMove={handlePointerMove}
             onPointerUp={handlePointerUp}
@@ -239,6 +241,8 @@ interface MarkerHandleProps {
   percent: number;
   dragging: boolean;
   time: number | null;
+  /** Matches the track's own `compact`; the tape is thinner, so the cap sits lower. */
+  compact?: boolean;
   onPointerDown: (e: React.PointerEvent) => void;
   onPointerMove: (e: React.PointerEvent) => void;
   onPointerUp: (e: React.PointerEvent) => void;
@@ -246,19 +250,35 @@ interface MarkerHandleProps {
 
 /**
  * A hardware-style marker chip: a labeled cap sitting above the tape with a
- * thin stem crossing it. One wide pointer target, easy to grab, impossible to
- * confuse with a track seek.
+ * thin stem crossing it.
+ *
+ * The drag target is the CAP ONLY, and it is deliberately larger than it looks
+ * — an invisible expander gives it a ~44px square of hit area (the platform
+ * touch-target minimum) centred on a visually smaller chip.
+ *
+ * The stem is `pointer-events-none`. It used to be part of a full-height,
+ * 20px-wide button, which made a wall either side of every marker: clicking
+ * the track anywhere near A or B grabbed the marker instead of seeking. Since
+ * the track is the only thing that seeks and a mis-seek is far more common
+ * than a mis-drag, the stem now yields to the track entirely and the cap
+ * absorbs the precision.
  */
 function MarkerHandle({
   marker,
   percent,
   dragging,
   time,
+  compact,
   onPointerDown,
   onPointerMove,
   onPointerUp,
 }: MarkerHandleProps) {
   const isA = marker === "A";
+  // The tape is centred in the lane, so its top edge is half its thickness
+  // above centre. Anchoring the cap's bottom there rests it on the tape without
+  // ever overlapping it. Keep in step with `tapeThickness` above.
+  const capBottom = compact ? "bottom-[calc(50%+1rem)]" : "bottom-[calc(50%+1.375rem)]";
+  const stemHeight = compact ? "h-8" : "h-11";
   return (
     <div
       className="pointer-events-none absolute inset-y-0 z-20 -translate-x-1/2"
@@ -271,30 +291,42 @@ function MarkerHandle({
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
         className={cn(
-          "group pointer-events-auto absolute inset-y-0 flex -translate-x-1/2 cursor-ew-resize touch-none flex-col items-center px-2.5",
+          "group pointer-events-auto absolute left-0 -translate-x-1/2",
+          // The cap rests ON TOP of the tape's upper edge, never over it: the
+          // button is bottom-anchored to the tape line, so its whole box lives
+          // in the clear lane above. Any height that dipped onto the tape would
+          // recreate the dead zone where a nearby click grabs the marker
+          // instead of seeking. Width stays generous for the thumb.
+          capBottom,
+          "grid h-8 w-11 cursor-ew-resize touch-none items-end justify-center",
           "focus-visible:outline-none",
         )}
       >
         <span
           className={cn(
-            "flex h-[1.15rem] w-5 items-center justify-center rounded-md border font-mono text-[0.65rem] font-semibold text-black",
+            "flex h-[1.2rem] w-[1.4rem] items-center justify-center rounded-md border font-mono text-[0.65rem] font-semibold text-black",
             "shadow-tooltip transition-transform",
             "group-focus-visible:ring-2 group-focus-visible:ring-focus group-focus-visible:ring-offset-1 group-focus-visible:ring-offset-surface",
             isA ? "border-marker-a bg-marker-a" : "border-marker-b bg-marker-b",
-            dragging && "scale-110",
+            dragging ? "scale-110" : "group-hover:scale-105",
           )}
         >
           {marker}
         </span>
-        <span
-          className={cn(
-            "mt-0.5 w-[2px] flex-1 rounded-full",
-            isA ? "bg-marker-a" : "bg-marker-b",
-            dragging ? "opacity-100" : "opacity-70",
-          )}
-          aria-hidden="true"
-        />
       </button>
+
+      {/* Stem: purely visual, and bounded to the tape. It spans exactly the
+          tape's height (centred, 2.75rem) so nothing hangs below the grid.
+          Pointer-transparent, or it would reinstate the dead zone. */}
+      <span
+        className={cn(
+          "pointer-events-none absolute left-0 top-1/2 w-[2px] -translate-x-1/2 -translate-y-1/2 rounded-full",
+          stemHeight,
+          isA ? "bg-marker-a" : "bg-marker-b",
+          dragging ? "opacity-100" : "opacity-70",
+        )}
+        aria-hidden="true"
+      />
     </div>
   );
 }

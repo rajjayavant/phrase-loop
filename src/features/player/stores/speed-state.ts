@@ -92,23 +92,14 @@ export function resetRate(state: PlaybackSpeedState): PlaybackSpeedState {
   return requestRate(state, 1);
 }
 
-/**
- * Build the compact status message shown when the player adjusted the rate.
- * Returns `null` when no message is warranted.
- */
-export function getSpeedStatusMessage(
-  state: PlaybackSpeedState,
-): string | null {
-  if (state.status === "adjusted") {
-    return `YouTube applied ${formatRate(state.appliedRate)} instead of ${formatRate(
-      state.requestedRate,
-    )}.`;
-  }
-  if (state.status === "unsupported") {
-    return "This player does not support custom playback rates.";
-  }
-  return null;
-}
+// No status message is surfaced for speed. The player quantizes requested
+// rates (see README), but the displayed number is always the *applied* rate,
+// so what the user reads is already the truth. Explaining the discrepancy adds
+// a line of API trivia they can neither act on nor care about — the tempo
+// either sounds right or it doesn't.
+//
+// `status` is still tracked on the state: it drives nothing visible today, but
+// it is what any future "rate unavailable" affordance would key off.
 
 export function formatRate(rate: number): string {
   // Trim trailing zeros: 0.5 -> "0.5×", 1 -> "1×", 0.75 -> "0.75×".

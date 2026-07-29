@@ -3,27 +3,21 @@
 import * as React from "react";
 import { RotateCcw } from "lucide-react";
 import { usePlayerStore } from "../stores/player-store";
-import {
-  formatRate,
-  getSpeedStatusMessage,
-  SPEED_PRESETS,
-  SPEED_STEP,
-} from "../stores/speed-state";
+import { formatRate, SPEED_PRESETS, SPEED_STEP } from "../stores/speed-state";
 import { MAX_SPEED, MIN_SPEED } from "@/lib/validation/practice-params";
-import { IconButton, Slider, StatusMessage, Tooltip } from "@/components/ui";
+import { IconButton, Slider, Tooltip } from "@/components/ui";
 import { cn } from "@/lib/utilities/cn";
 
 /**
  * A slim, horizontal speed control living inside the console. Slider + a couple
- * of presets are always visible; the reconciled applied rate is shown large,
- * and any adjustment surfaces a compact status line below.
+ * of presets are always visible, and the reconciled applied rate is shown
+ * large — that number is the truth, so no further explanation is offered.
  */
 export function SpeedRow() {
   const speed = usePlayerStore((s) => s.speed);
   const requestSpeed = usePlayerStore((s) => s.requestSpeed);
   const resetSpeed = usePlayerStore((s) => s.resetSpeed);
 
-  const statusMessage = getSpeedStatusMessage(speed);
   const requested = speed.requestedRate;
 
   return (
@@ -88,15 +82,6 @@ export function SpeedRow() {
           </IconButton>
         </Tooltip>
       </div>
-
-      {statusMessage && (
-        <StatusMessage
-          tone={speed.status === "unsupported" ? "warning" : "info"}
-          className="mt-2.5"
-        >
-          {statusMessage}
-        </StatusMessage>
-      )}
     </div>
   );
 }
