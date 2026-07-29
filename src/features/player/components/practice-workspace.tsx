@@ -10,6 +10,7 @@ import {
   loadCachedFile,
 } from "../stores/local-source";
 import { PlayerSurface } from "./player-surface";
+import { isAudioFile } from "../adapters/local-file-adapter";
 import { TransportControls } from "./transport-controls";
 import { Timeline } from "@/features/loop/components/timeline";
 import { SpeedRow } from "./speed-row";
@@ -197,7 +198,10 @@ function SourceWorkspace({
       <PracticeHeader />
 
       <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-5 px-4 pb-32 pt-1 sm:px-6 lg:pb-10">
-        <PlayerSurface containerRef={containerRef} />
+        <PlayerSurface
+          containerRef={containerRef}
+          audioFile={file && isAudioFile(file) ? file : null}
+        />
 
         {/* The console: timeline, transport and speed read as one continuous
             control deck rather than a stack of separate cards. */}

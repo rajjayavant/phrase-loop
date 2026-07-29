@@ -2,12 +2,17 @@
  * LocalFilePlayerAdapter — plays a media file the user supplies from their own
  * device (a video or audio file, e.g. a reel they downloaded themselves).
  *
- * Because the media is a same-origin `<video>` element we control, this adapter
- * delivers the FULL practice contract — real `seekTo`, `setPlaybackRate`, loop,
+ * Because the media is a same-origin element we control, this adapter delivers
+ * the FULL practice contract — real `seekTo`, `setPlaybackRate`, loop,
  * duration, volume — identical to YouTube, with frame-accurate seeking.
  *
- * All local-file specifics (the object URL, the `<video>` element, its media
- * events) are confined here; the store and UI see only `PlayerAdapter`.
+ * Audio files use an `<audio>` element rather than `<video>`. A `<video>` would
+ * play them perfectly well, but it reserves the full faceplate for a permanently
+ * black rectangle; using `<audio>` frees that space for the waveform (see
+ * `isAudio` and `AudioVisualizer`).
+ *
+ * All local-file specifics (the object URL, the media element, its events) are
+ * confined here; the store and UI see only `PlayerAdapter`.
  */
 
 import type {
@@ -20,8 +25,19 @@ import type {
 // requested range rather than YouTube's quantized list, so speed is truly free.
 const SUPPORTED_RATES = [0.25, 0.5, 0.75, 0.9, 1, 1.25, 1.5, 2];
 
+/**
+ * True when the file is audio-only. MIME type is authoritative; the extension
+ * is a fallback for files the OS typed as `application/octet-stream` or left
+ * blank, which happens often enough on Windows and with AirDropped files.
+ */
+export function isAudioFile(file: File): boolean {
+  if (file.type.startsWith("audio/")) return true;
+  if (file.type.startsWith("video/")) return false;
+  return /\.(mp3|wav|m4a|aac|flac|oga|opus|weba)$/i.test(file.name);
+}
+
 export class LocalFilePlayerAdapter implements PlayerAdapter {
-  private media: HTMLVideoElement | null = null;
+  private media: HTMLMediaElement | null = null;
   private objectUrl: string | null = null;
   private ready = false;
   private status: PlayerStatus = "idle";
@@ -30,11 +46,19 @@ export class LocalFilePlayerAdapter implements PlayerAdapter {
   private readonly container: HTMLElement;
   private readonly events: PlayerAdapterEvents;
   private readonly file: File;
+  /** Audio-only sources have no picture, so the UI shows a waveform instead. */
+  readonly isAudio: boolean;
 
   constructor(container: HTMLElement, file: File, events: PlayerAdapterEvents = {}) {
     this.container = container;
     this.file = file;
     this.events = events;
+    this.isAudio = isAudioFile(file);
+  }
+
+  /** The live media element, for a visualizer that needs to read playback. */
+  getMediaElement(): HTMLMediaElement | null {
+    return this.media;
   }
 
   private setStatus(status: PlayerStatus): void {
@@ -49,11 +73,21 @@ export class LocalFilePlayerAdapter implements PlayerAdapter {
     this.setStatus("loading");
     this.pendingStart = startSeconds ?? 0;
 
-    const media = document.createElement("video");
-    media.playsInline = true;
+    let media: HTMLMediaElement;
+    if (this.isAudio) {
+      // An <audio> element still needs to be in the DOM to play, but it has no
+      // picture to show — the waveform overlay renders on top of it.
+      const audio = document.createElement("audio");
+      audio.className = "sr-only";
+      media = audio;
+    } else {
+      const video = document.createElement("video");
+      video.playsInline = true;
+      video.className = "h-full w-full bg-black object-contain";
+      media = video;
+    }
     media.preload = "auto";
     media.controls = false;
-    media.className = "h-full w-full bg-black object-contain";
     // A local file is same-origin (blob:) so this is safe and unlocks control.
     this.objectUrl = URL.createObjectURL(this.file);
     media.src = this.objectUrl;

@@ -3,10 +3,16 @@
 import * as React from "react";
 import { Loader2, AlertTriangle, Play } from "lucide-react";
 import { usePlayerStore } from "../stores/player-store";
+import { AudioVisualizer } from "./audio-visualizer";
 import { cn } from "@/lib/utilities/cn";
 
 interface PlayerSurfaceProps {
   containerRef: React.RefObject<HTMLDivElement | null>;
+  /**
+   * Set for an audio-only local file. Audio has no picture, so the waveform
+   * visualizer takes the faceplate instead of leaving a black rectangle.
+   */
+  audioFile?: File | null;
 }
 
 const ERROR_TITLES: Record<string, string> = {
@@ -24,7 +30,10 @@ const ERROR_TITLES: Record<string, string> = {
  * top-light, so it reads like a physical unit rather than an embedded iframe.
  * Status overlays keep the region from ever being blank.
  */
-export function PlayerSurface({ containerRef }: PlayerSurfaceProps) {
+export function PlayerSurface({
+  containerRef,
+  audioFile = null,
+}: PlayerSurfaceProps) {
   const status = usePlayerStore((s) => s.status);
   const error = usePlayerStore((s) => s.error);
   const play = usePlayerStore((s) => s.play);
@@ -45,10 +54,16 @@ export function PlayerSurface({ containerRef }: PlayerSurfaceProps) {
           "shadow-faceplate",
         )}
       >
-        <div className="aspect-video w-full">
+        <div className="relative aspect-video w-full">
+          {/* For audio the mount node holds a screen-reader-only <audio>
+              element, so the waveform fills the panel behind the overlays. */}
+          {audioFile && <AudioVisualizer file={audioFile} />}
           <div
             ref={containerRef}
-            className="h-full w-full [&_iframe]:h-full [&_iframe]:w-full"
+            className={cn(
+              "h-full w-full [&_iframe]:h-full [&_iframe]:w-full",
+              audioFile && "absolute inset-0",
+            )}
           />
         </div>
 
@@ -62,7 +77,7 @@ export function PlayerSurface({ containerRef }: PlayerSurfaceProps) {
         )}
 
         {isReadyToStart && !error && (
-          <Overlay interactive>
+          <Overlay interactive light={audioFile != null}>
             <button
               type="button"
               onClick={play}
@@ -105,15 +120,24 @@ export function PlayerSurface({ containerRef }: PlayerSurfaceProps) {
 function Overlay({
   children,
   interactive,
+  light,
 }: {
   children: React.ReactNode;
   interactive?: boolean;
+  /**
+   * A lighter scrim, for when there is something worth seeing underneath.
+   * Over a video frame the heavy scrim gives the text contrast; over the audio
+   * waveform it erases the only thing the panel has to show.
+   */
+  light?: boolean;
 }) {
   return (
     <div
       className={cn(
         "absolute inset-0 flex flex-col items-center justify-center px-5 text-center",
-        "bg-gradient-to-b from-black/70 via-black/80 to-black/90 backdrop-blur-sm",
+        light
+          ? "bg-black/35"
+          : "bg-gradient-to-b from-black/70 via-black/80 to-black/90 backdrop-blur-sm",
         interactive ? "pointer-events-auto" : "pointer-events-none",
       )}
     >
