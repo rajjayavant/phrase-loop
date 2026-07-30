@@ -119,15 +119,27 @@ export class YouTubePlayerAdapter implements PlayerAdapter {
     await new Promise<void>((resolve) => {
       this.player = new YTApi.Player(mount, {
         videoId,
+        // Deliberately minimal.
+        //
+        // A user reported a video failing here (error 150) that played fine on
+        // YouTube, in another embed, in the same browser — so the fault was
+        // ours, not the video's. Diffing our generated iframe URL against a
+        // working competitor's showed the only difference was four cosmetic
+        // params we were adding: modestbranding, rel, playsinline, autoplay.
+        //
+        // Two of those are dead weight that can only hurt: `modestbranding`
+        // was deprecated in 2023 and `rel=0` was redefined in 2018, so we were
+        // sending parameters whose meaning changed under us. Every param is
+        // also more surface for a strict embed-validation path to reject —
+        // the report came from a privacy-hardened browser (Comet).
+        //
+        // Note `origin` is NOT passed: the IFrame API derives and appends it
+        // itself (verified in the generated URL). Passing our own was
+        // redundant and risked diverging from what the API computes.
+        //
+        // `start` is the one exception — it is functional, not cosmetic.
         playerVars: {
-          // Keep native branding + controls visible and compliant.
-          modestbranding: 1,
-          rel: 0,
-          playsinline: 1,
-          origin: window.location.origin,
           start: startSeconds ? Math.floor(startSeconds) : undefined,
-          // Do NOT autoplay — playback starts on a user gesture.
-          autoplay: 0,
         },
         events: {
           onReady: () => {
