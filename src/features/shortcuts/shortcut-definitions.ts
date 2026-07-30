@@ -5,8 +5,9 @@
  *
  * Conflict resolution decisions (per spec):
  *   - `L` is reserved for toggling the loop and is NOT used for seeking.
- *   - `K` mirrors Space/`J`-`K` transport convention for play/pause.
- *   - `J` reduces speed (paired with a symmetric increase; see below).
+ *   - `K` mirrors Space for play/pause (the J-K-L convention's centre).
+ *   - `⇧,` / `⇧.` change speed — the same keys YouTube uses, so arriving
+ *     muscle memory works unchanged.
  *   - `[` / `]` move the *selected* marker; plain arrows seek.
  */
 
@@ -115,13 +116,13 @@ export const SHORTCUTS: ShortcutDefinition[] = [
   },
   {
     action: "speed-down",
-    keys: ["J"],
+    keys: ["Shift", ","],
     description: "Reduce playback speed",
     group: "Speed",
   },
   {
     action: "speed-up",
-    keys: ["Shift", "J"],
+    keys: ["Shift", "."],
     description: "Increase playback speed",
     group: "Speed",
   },

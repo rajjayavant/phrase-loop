@@ -18,6 +18,7 @@ import { SpeedRow } from "./speed-row";
 import { AdvancedSettings } from "./advanced-settings";
 import { PracticeHeader } from "./practice-header";
 import { toast } from "@/components/ui";
+import { FileDropZone } from "@/features/link-input/file-drop-zone";
 import { useKeyboardShortcuts } from "@/features/shortcuts/use-keyboard-shortcuts";
 import { useSessionSync } from "@/features/session/use-session-sync";
 import { useUrlSync } from "@/features/session/use-url-sync";
@@ -50,10 +51,18 @@ export interface PracticeWorkspaceProps {
  * differing only in which adapter backs the player.
  */
 export function PracticeWorkspace(props: PracticeWorkspaceProps) {
-  if (props.source === "local") {
-    return <LocalWorkspace {...props} />;
-  }
-  return <SourceWorkspace {...props} file={null} kind={props.source} />;
+  return (
+    <>
+      {/* Whole-page drop target: a dragged file works from any practice
+          variant, exactly like the Upload button. */}
+      <FileDropZone />
+      {props.source === "local" ? (
+        <LocalWorkspace {...props} />
+      ) : (
+        <SourceWorkspace {...props} file={null} kind={props.source} />
+      )}
+    </>
+  );
 }
 
 /**

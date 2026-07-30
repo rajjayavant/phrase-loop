@@ -1,15 +1,10 @@
 "use client";
 
 import * as React from "react";
-import { useRouter } from "next/navigation";
 import { Upload } from "lucide-react";
 import { Button } from "@/components/ui";
-import { toast } from "@/components/ui";
-import {
-  ACCEPTED_MEDIA,
-  isMediaFile,
-  useLocalSourceStore,
-} from "@/features/player/stores/local-source";
+import { ACCEPTED_MEDIA } from "@/features/player/stores/local-source";
+import { useOpenLocalFile } from "./use-open-local-file";
 import { cn } from "@/lib/utilities/cn";
 
 interface FilePickerButtonProps {
@@ -31,23 +26,8 @@ export function FilePickerButton({
   className,
   compact = false,
 }: FilePickerButtonProps) {
-  const router = useRouter();
-  const setFile = useLocalSourceStore((s) => s.setFile);
+  const openFile = useOpenLocalFile();
   const inputRef = React.useRef<HTMLInputElement>(null);
-
-  const handleFiles = (files: FileList | null) => {
-    const file = files?.[0];
-    if (!file) return;
-    if (!isMediaFile(file)) {
-      toast.show({
-        title: "Unsupported file",
-        description: "Choose a video or audio file (MP4, WebM, MOV, MP3…).",
-      });
-      return;
-    }
-    const id = setFile(file);
-    router.push(`/practice?src=local:${id}`);
-  };
 
   return (
     <>
@@ -56,7 +36,7 @@ export function FilePickerButton({
         type="file"
         accept={ACCEPTED_MEDIA}
         className="sr-only"
-        onChange={(e) => handleFiles(e.target.files)}
+        onChange={(e) => openFile(e.target.files?.[0])}
         tabIndex={-1}
         aria-hidden="true"
       />

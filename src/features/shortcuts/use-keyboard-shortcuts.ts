@@ -59,10 +59,18 @@ export function useKeyboardShortcuts() {
           event.preventDefault();
           store.restartLoop();
           return;
-        case "KeyJ":
+        // Speed follows YouTube's own bindings — ⇧, slower, ⇧. faster —
+        // so the muscle memory users arrive with just works. Unshifted
+        // comma/period stay free.
+        case "Comma":
+          if (!event.shiftKey) return;
           event.preventDefault();
-          // Shift+J increases; J decreases.
-          store.nudgeSpeed(event.shiftKey ? 0.05 : -0.05);
+          store.nudgeSpeed(-0.05);
+          return;
+        case "Period":
+          if (!event.shiftKey) return;
+          event.preventDefault();
+          store.nudgeSpeed(0.05);
           return;
         // Plain arrow = 1s, Shift+arrow = 5s. The 5s jump used to be a button
         // on the transport bar; it lives here now so the bar stays uncluttered.
