@@ -33,6 +33,21 @@ function mapPlayerState(state: number): PlayerStatus {
   }
 }
 
+/**
+ * Map a YouTube IFrame API error code to our own taxonomy.
+ *
+ * Note on 101/150 — measured, not documented. YouTube's docs describe these
+ * as "the owner does not allow embedded playback", but the player emits them
+ * for a *well-formed but unresolvable* video id too (both `aaaaaaaaaaa` and a
+ * random 11-char id return 150). It also emits them for region blocks and age
+ * gates. So the code alone cannot tell us which it is, and asserting "the
+ * owner disabled embedding" is often simply false — which reads as a bug to
+ * anyone who can open the same video on YouTube in another tab.
+ *
+ * We therefore keep the distinct kind (callers may still want it) but word the
+ * message honestly: the video can't be played *here*, with the likely reasons
+ * listed and an escape hatch. See the "Open on YouTube" link in PlayerSurface.
+ */
 function mapErrorCode(code: number): PlayerError {
   const kind: PlayerErrorKind = (() => {
     switch (code) {
@@ -44,7 +59,7 @@ function mapErrorCode(code: number): PlayerError {
         return "not-found"; // removed / private
       case 101:
       case 150:
-        return "not-embeddable"; // embedding disabled by owner
+        return "not-embeddable"; // see the note above — NOT necessarily the owner
       default:
         return "unknown";
     }
@@ -53,7 +68,7 @@ function mapErrorCode(code: number): PlayerError {
   const message: Record<PlayerErrorKind, string> = {
     "invalid-video": "This video ID is invalid or malformed.",
     "not-embeddable":
-      "The owner has disabled playback on other websites. Try opening it on YouTube.",
+      "YouTube won't play this one outside its own site. That usually means the video is age-restricted, blocked in your region, or the owner turned off embedding — it can also happen if the link is slightly off.",
     "not-found": "This video is unavailable, private, or has been removed.",
     "html5-error": "The video could not be played due to a playback error.",
     network: "A network error interrupted playback.",

@@ -1,9 +1,10 @@
 "use client";
 
 import * as React from "react";
-import { Loader2, AlertTriangle, Play } from "lucide-react";
+import { Loader2, AlertTriangle, Play, RotateCcw } from "lucide-react";
 import { usePlayerStore } from "../stores/player-store";
 import { AudioVisualizer } from "./audio-visualizer";
+import { Button } from "@/components/ui";
 import { cn } from "@/lib/utilities/cn";
 
 interface PlayerSurfaceProps {
@@ -17,7 +18,9 @@ interface PlayerSurfaceProps {
 
 const ERROR_TITLES: Record<string, string> = {
   "invalid-video": "Invalid video",
-  "not-embeddable": "Playback disabled here",
+  // Deliberately not "the owner disabled embedding" — YouTube emits this code
+  // for region blocks, age gates, and unresolvable ids too. See mapErrorCode.
+  "not-embeddable": "YouTube won't play this here",
   "not-found": "Video unavailable",
   "html5-error": "Playback error",
   network: "Network problem",
@@ -118,7 +121,21 @@ export function PlayerSurface({
             <p className="mt-1 max-w-sm text-small-body text-secondary">
               {error.message}
             </p>
-            <YouTubeFallbackLink />
+            {/* These errors are often transient — the same video can fail once
+                and load on a second attempt — so a retry has to be reachable
+                without reloading the page and losing the loop. */}
+            <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+              <Button
+                variant="secondary"
+                size="sm"
+                className="gap-1.5"
+                onClick={() => window.location.reload()}
+              >
+                <RotateCcw className="h-4 w-4" />
+                Try again
+              </Button>
+              <YouTubeFallbackLink />
+            </div>
           </Overlay>
         )}
       </div>
@@ -165,7 +182,7 @@ function YouTubeFallbackLink() {
       href={`https://www.youtube.com/watch?v=${videoId}`}
       target="_blank"
       rel="noreferrer noopener"
-      className="mt-4 text-small-body font-medium text-accent underline-offset-4 hover:underline"
+      className="px-1 text-small-body font-medium text-accent underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
     >
       Open on YouTube →
     </a>
