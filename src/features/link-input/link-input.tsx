@@ -45,7 +45,7 @@ export function LinkInput({
       // lands the practice region where the sender intended.
       params.set("a", String(Math.round(parsed.startTime * 1000) / 1000));
     }
-    router.push(`/practice?${params.toString()}`);
+    router.push(`/?${params.toString()}`);
   };
 
   return (

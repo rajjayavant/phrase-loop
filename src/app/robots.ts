@@ -4,20 +4,16 @@ import { BASE_URL } from "./sitemap";
 /**
  * Served at /robots.txt by Next's metadata route.
  *
- * `/practice` is disallowed on purpose. Every shared loop is a distinct URL
- * over the same view (`?v=…&a=…&b=…`), so leaving it open would let crawlers
- * index unbounded near-duplicate pages of other people's videos — bad for our
- * own ranking and not content we should be publishing. Real pages stay open.
+ * Nothing is disallowed. The player now lives at the root, so blocking
+ * parameterised URLs would block the homepage itself. Duplicate `?v=…&a=…`
+ * variants are handled by the self-referencing canonical on `/` instead,
+ * which tells crawlers every parameterised loop is the same page — the
+ * correct tool for consolidating duplicates, where robots.txt would simply
+ * hide the site.
  */
 export default function robots(): MetadataRoute.Robots {
   return {
-    rules: [
-      {
-        userAgent: "*",
-        allow: "/",
-        disallow: ["/practice"],
-      },
-    ],
+    rules: [{ userAgent: "*", allow: "/" }],
     sitemap: `${BASE_URL}/sitemap.xml`,
     host: BASE_URL,
   };

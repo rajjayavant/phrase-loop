@@ -30,7 +30,7 @@ export function CopyLinkButton({ trigger }: { trigger: React.ReactElement }) {
       params.delete("v");
       params.set("src", state.videoId);
     }
-    return `${window.location.origin}/practice?${params.toString()}`;
+    return `${window.location.origin}/?${params.toString()}`;
   }, []);
 
   const copy = React.useCallback(async () => {

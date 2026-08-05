@@ -140,8 +140,28 @@ export default function PrivacyPage() {
 
       <h2>Analytics</h2>
       <p>
-        We do not currently run a third-party analytics service. If that changes
-        we will update this page and say plainly what is measured.
+        We use Google Analytics 4 to understand how the site is used: which
+        pages are visited, roughly where visitors come from, and which browsers
+        and devices we need to support. It sets cookies in your browser and
+        sends Google your approximate location, device and browser details, and
+        the pages you view. Google processes this on our behalf.
+      </p>
+      <p>
+        We do not send Google anything you type into the app. Video links,
+        marker positions, playback speeds, and uploaded files are not part of
+        what analytics collects.
+      </p>
+      <p>
+        You can opt out with Google&rsquo;s{" "}
+        <a
+          href="https://tools.google.com/dlpage/gaoptout"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          browser add-on
+        </a>
+        , or by blocking analytics cookies in your browser or an extension. The
+        app works exactly the same either way.
       </p>
 
       <h2>Children</h2>

@@ -33,7 +33,7 @@ export function HeaderLinkInput() {
       params.set("a", String(Math.round(parsed.startTime * 1000) / 1000));
     }
     setValue("");
-    router.push(`/practice?${params.toString()}`);
+    router.push(`/?${params.toString()}`);
     inputRef.current?.blur();
   };
 

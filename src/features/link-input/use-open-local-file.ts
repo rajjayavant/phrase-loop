@@ -28,7 +28,7 @@ export function useOpenLocalFile() {
         return false;
       }
       const id = setFile(file);
-      router.push(`/practice?src=local:${id}`);
+      router.push(`/?src=local:${id}`);
       return true;
     },
     [router, setFile],

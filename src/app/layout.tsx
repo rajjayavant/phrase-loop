@@ -3,6 +3,7 @@ import { Poppins, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { TooltipProvider, ToastViewport } from "@/components/ui";
 import { Announcer } from "@/features/session/announcer";
+import { AnalyticsScripts } from "@/features/session/analytics-scripts";
 
 // Display / brand voice — rounded, characterful, matches the studio aesthetic.
 const poppins = Poppins({
@@ -100,6 +101,7 @@ export default function RootLayout({
           <ToastViewport />
           <Announcer />
         </TooltipProvider>
+        <AnalyticsScripts />
       </body>
     </html>
   );

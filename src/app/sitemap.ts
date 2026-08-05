@@ -9,8 +9,9 @@ export const BASE_URL = "https://phraseloop.online";
  * claims every page changed whenever anything did, which crawlers learn to
  * distrust. No date beats a false one.
  *
- * `/practice` is excluded — it is a parameterised view of user-supplied
- * videos, not a page with content of its own worth indexing.
+ * Only the bare `/` is listed. Parameterised variants (`/?v=…&a=…`) are the
+ * same page with a different video loaded, and the self-referencing canonical
+ * on `/` already points them here.
  */
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
