@@ -12,10 +12,20 @@ export interface WordmarkProps extends React.HTMLAttributes<HTMLSpanElement> {
  * beside the Poppins wordmark set tight. The mark is drawn inline so the brand
  * needs no image asset and scales crisply.
  *
- * The glyph is a pair of repeat barlines from music notation enclosing a short
- * waveform: literally a phrase, marked to repeat. It borrows the musician's own
- * vocabulary rather than the generic loop-arrow every media player already
- * uses, and the uneven bars keep it reading as audio rather than as pattern.
+ * The glyph is a pair of repeat barlines from music notation joined by a staff
+ * line — the mark a player already knows means "play this again". It borrows
+ * the musician's own vocabulary rather than the generic loop-arrow every media
+ * player uses.
+ *
+ * The barlines used to enclose a small waveform, which read as clutter at
+ * favicon size. Removing it left the two halves floating apart as separate
+ * `:|` and `|:` glyphs, so the staff line does the joining instead: one mark,
+ * far less ink.
+ *
+ * Known trade-off: this is six elements, and it is softer at 16px than a
+ * single silhouette would be. A bracket-and-play-triangle version tested
+ * better at favicon size but lost the musical vocabulary, which is the more
+ * important quality here.
  */
 export function Wordmark({
   className,
@@ -66,12 +76,15 @@ export function Wordmark({
             strokeWidth="2.5"
             strokeLinecap="round"
           />
-          {/* The phrase itself — two uneven bars, so it reads as audio
-              rather than as decoration. */}
+          {/* A single staff line between the dot pairs. It ties the two
+              barlines into one mark — without it the wide spacing lets them
+              read as separate `:|` and `|:` glyphs. Kept dot-to-dot rather
+              than spanning the full width, which would cross the dots and
+              look like a strikethrough. */}
           <path
-            d="M10.8 9.8v4.4M13.2 7.2v9.6"
+            d="M9.4 12h5.2"
             stroke="currentColor"
-            strokeWidth="2.2"
+            strokeWidth="1.8"
             strokeLinecap="round"
           />
         </svg>

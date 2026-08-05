@@ -140,9 +140,14 @@ that box pulls, installs, builds, and restarts.
 
 ## Working agreements
 
-- **Do not push** unless explicitly asked. Note: something in this environment
-  has auto-committed and pushed on file save before — verify `git status` and
-  `git log origin/main..HEAD` before assuming your changes are local.
+- **Do not commit, and do not push**, unless explicitly asked. Finish the work
+  and leave it in the working tree for the owner to review and commit. Say
+  plainly what you changed and which files are dirty.
+- Note: something in this environment has auto-committed and pushed on file
+  save before, so a clean `git status` does **not** prove your work is
+  uncommitted. Check `git log origin/main..HEAD` and the branch tip before
+  reporting where things stand — and if it happened, say so rather than
+  letting it pass silently.
 - Prefer SVG you author over generated raster images for icons, diagrams, and
   anything containing text.
 - The engine is well tested; if you change loop or speed behaviour, extend
