@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Wordmark } from "@/components/brand/wordmark";
 import { getLastVideoId } from "@/features/session/session-storage";
@@ -35,6 +36,28 @@ export default function RootPage() {
       <span className="sr-only" role="status">
         Loading PhraseLoop
       </span>
+
+      {/* The root redirects into /practice within a frame or two, so a human
+          rarely reads this. It matters for anything that does NOT run the
+          redirect — crawlers, and ad-network reviewers — which would otherwise
+          see a splash screen with no content and no policy links at all. */}
+      <nav
+        aria-label="Site"
+        className="absolute inset-x-0 bottom-0 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 px-4 py-6 text-helper text-muted"
+      >
+        <Link href="/about" className="hover:text-secondary">
+          About
+        </Link>
+        <Link href="/privacy" className="hover:text-secondary">
+          Privacy Policy
+        </Link>
+        <Link href="/terms" className="hover:text-secondary">
+          Terms of Service
+        </Link>
+        <Link href="/contact" className="hover:text-secondary">
+          Contact
+        </Link>
+      </nav>
     </div>
   );
 }

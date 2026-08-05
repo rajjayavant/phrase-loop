@@ -19,6 +19,7 @@ import { AdvancedSettings } from "./advanced-settings";
 import { PracticeHeader } from "./practice-header";
 import { toast } from "@/components/ui";
 import { FileDropZone } from "@/features/link-input/file-drop-zone";
+import { SiteFooter } from "@/components/site-footer";
 import { useKeyboardShortcuts } from "@/features/shortcuts/use-keyboard-shortcuts";
 import { useSessionSync } from "@/features/session/use-session-sync";
 import { useUrlSync } from "@/features/session/use-url-sync";
@@ -256,6 +257,12 @@ function SourceWorkspace({
       {/* Mobile transport dock */}
       <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-surface/95 px-3 py-2.5 backdrop-blur lg:hidden">
         <TransportControls />
+      </div>
+
+      {/* Extra bottom padding on mobile so the fixed transport dock never
+          covers the footer links. */}
+      <div className="pb-24 lg:pb-0">
+        <SiteFooter />
       </div>
 
       <MobileFallbackFooter />
