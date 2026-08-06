@@ -5,6 +5,18 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ["lucide-react"],
   },
+  images: {
+    // The facade poster: YouTube thumbnails, resized per viewport and
+    // re-encoded by the optimizer, served same-origin so the first paint
+    // needs no third-party connection.
+    remotePatterns: [
+      { protocol: "https", hostname: "i.ytimg.com", pathname: "/vi/**" },
+    ],
+    // Optimized copies may be cached for a month (default is 60s, which
+    // Lighthouse flags). Thumbnails for a given video id effectively never
+    // change; a stale poster for up to a month is harmless.
+    minimumCacheTTL: 2678400,
+  },
   async redirects() {
     return [
       {
