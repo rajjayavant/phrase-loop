@@ -94,10 +94,8 @@ export default function RootLayout({
             the critical path for the player. Opening the connections early
             saves the DNS, TCP and TLS round trips when the scripts are
             actually requested. */}
-        {/* No youtube.com / i.ytimg.com preconnects here: the player loads
-            only on activation (warmed on hover in PlayerSurface), and the
-            poster is served same-origin through next/image. Lighthouse flags
-            preconnects to origins the initial load never hits. */}
+        <link rel="preconnect" href="https://www.youtube.com" />
+        <link rel="preconnect" href="https://i.ytimg.com" />
         <link rel="preconnect" href="https://www.googletagmanager.com" />
         <link rel="dns-prefetch" href="https://www.google-analytics.com" />
       </head>

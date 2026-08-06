@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import Image from "next/image";
 import { Loader2, AlertTriangle, Play, RotateCcw } from "lucide-react";
 import { usePlayerStore } from "../stores/player-store";
 import { AudioVisualizer } from "./audio-visualizer";
@@ -184,14 +183,11 @@ export function PlayerSurface({
 }
 
 /**
- * The facade thumbnail, sharpest available first: maxresdefault (1280×720)
- * only exists for some videos, so on a miss we step down to hqdefault, which
- * always exists. YouTube serves a small grey placeholder instead of a 404 for
- * missing maxres; it is detectable by its natural width.
- *
- * Served through next/image: resized to the actual slot, re-encoded, cached
- * long (see `images` in next.config.ts), and preloaded from the same origin —
- * this img is the page's LCP element, so its delivery is the LCP.
+ * The facade thumbnail, sharpest available first. The faceplate renders at
+ * ~850 px, so hqdefault (480×360) alone looks pixelated — but maxresdefault
+ * (1280×720) only exists for some videos, so on 404 we step down. YouTube
+ * serves a 120×90 grey placeholder instead of a 404 for missing maxres; it is
+ * detectable by its natural width.
  */
 function PosterImage({ videoId }: { videoId: string }) {
   const QUALITIES = ["maxresdefault", "hqdefault"] as const;
@@ -199,26 +195,22 @@ function PosterImage({ videoId }: { videoId: string }) {
 
   const stepDown = (img: HTMLImageElement) => {
     // The missing-thumbnail placeholder is 120×90; a real frame never is.
-    // The optimizer never upscales, so the placeholder keeps its tiny
-    // natural size and stays detectable through /_next/image.
     if (quality < QUALITIES.length - 1 && img.naturalWidth <= 120) {
       setQuality((q) => q + 1);
     }
   };
 
   return (
-    <Image
+    // eslint-disable-next-line @next/next/no-img-element -- remote host,
+    // fixed size, above the fold: plain <img> avoids adding a remotePatterns
+    // config for a single decorative poster.
+    <img
       src={`https://i.ytimg.com/vi/${videoId}/${QUALITIES[quality]}.jpg`}
       alt=""
-      fill
-      priority
-      // The faceplate tracks the max-w-4xl content column: full-bleed minus
-      // padding on phones, capped on desktop. Keeps phones on the ~640w
-      // rendition instead of the full 1280.
-      sizes="(max-width: 896px) calc(100vw - 32px), 846px"
+      fetchPriority="high"
       onLoad={(e) => stepDown(e.currentTarget)}
       onError={() => setQuality((q) => Math.min(q + 1, QUALITIES.length - 1))}
-      className="z-[1] object-cover"
+      className="absolute inset-0 z-[1] h-full w-full object-cover"
     />
   );
 }
