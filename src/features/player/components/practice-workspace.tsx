@@ -41,6 +41,12 @@ export interface PracticeWorkspaceProps {
   initialB: number | null;
   initialSpeed: number | null;
   initialLoop: boolean | null;
+  /**
+   * Server-rendered content placed between the instrument and the footer.
+   * Passed through as a prop rather than rendered by the page so it lands
+   * inside the workspace's own layout, above the footer this component owns.
+   */
+  children?: React.ReactNode;
 }
 
 /**
@@ -147,6 +153,7 @@ function SourceWorkspace({
   initialLoop,
   file,
   kind,
+  children,
 }: SourceWorkspaceProps) {
   // A stable key for this source, used for the mount effect and session.
   const sourceKey = source === "local" ? `local:${localId ?? ""}` : videoId ?? "";
@@ -255,13 +262,20 @@ function SourceWorkspace({
       </main>
 
       {/* Mobile transport dock */}
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-surface/95 px-3 py-2.5 backdrop-blur lg:hidden">
+      {/* Fully opaque, not bg-surface/95: with page content below the player,
+          body text scrolls under this dock and was legible through it. A
+          backdrop blur does not rescue small text at 95% opacity. */}
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-surface px-3 py-2.5 lg:hidden">
         <TransportControls />
       </div>
 
       {/* Extra bottom padding on mobile so the fixed transport dock never
           covers the footer links. */}
       <div className="pb-24 lg:pb-0">
+        {/* Server-rendered page content, between the instrument and the
+            footer. Empty on the local-file route, where the page passes
+            nothing. */}
+        {children}
         <SiteFooter />
       </div>
 

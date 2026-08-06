@@ -5,7 +5,7 @@ import { LegalPage } from "@/features/legal/legal-page";
 export const metadata: Metadata = {
   title: "Privacy Policy — PhraseLoop",
   description:
-    "How PhraseLoop handles your data: no accounts, no uploads, no tracking of your practice. Files you open stay on your device. Details on browser storage, YouTube embeds, and advertising.",
+    "How PhraseLoop handles your data: no accounts, no uploads, no tracking of your practice. Files you open stay on your device. Details on browser storage, analytics, and embeds.",
   alternates: { canonical: "/privacy" },
 };
 
@@ -73,6 +73,27 @@ export default function PrivacyPage() {
         This data stays in your browser. It is not transmitted to us and is not
         shared with anyone. You can erase all of it at any time by clearing site
         data for phraseloop.online in your browser settings.
+      </p>
+
+      <h2>Instagram embeds</h2>
+      <p>
+        The author page embeds a few Instagram posts. Those embeds load
+        directly from Instagram, which means Instagram and Meta can see that
+        your browser requested them and may set their own cookies, in the same
+        way as if you had opened the posts on Instagram. No other page on this
+        site loads anything from Instagram.
+      </p>
+      <p>
+        That processing is outside our control and is governed by{" "}
+        <a
+          href="https://privacycenter.instagram.com/policy"
+          target="_blank"
+          rel="noreferrer noopener"
+        >
+          Instagram&rsquo;s privacy policy
+        </a>
+        . Blocking third-party scripts stops the embeds loading; the rest of
+        the page still works, and each embed falls back to a plain link.
       </p>
 
       <h2>YouTube embedded player</h2>

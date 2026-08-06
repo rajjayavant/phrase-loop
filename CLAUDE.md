@@ -6,6 +6,10 @@ codebase; it covers the things that are expensive to rediscover.
 `README.md` is the long-form reference (URL format, measured YouTube findings,
 accessibility notes). `DESIGN_SYSTEM.md` covers tokens and components.
 `MANUAL_TESTING.md` is the checklist against the real player.
+**`SEO.md`** covers search: what is set up, the keyword and competitor data
+measured in August 2026, and the decisions taken. Read it before changing
+metadata, `home-content.tsx`, `robots.ts`, `sitemap.ts`, or writing any
+user-facing marketing copy. It will save you from redoing paid research.
 
 ---
 
@@ -22,6 +26,13 @@ restored silently.
 
 Source-agnostic by design: a YouTube link and a local video/audio file give
 the **identical** experience.
+
+Below the player, and above the footer, `/` also renders `HomeContent` (the
+`h1`, an intro, how-it-works, and an FAQ). It is passed to `PracticeWorkspace`
+as a child so it lands inside that component's layout, since the workspace
+owns the footer. It exists so the root URL has something to index; the tool
+still comes first on the page. The local-file route renders none of it. See
+`SEO.md` before touching it.
 
 ## Stack
 

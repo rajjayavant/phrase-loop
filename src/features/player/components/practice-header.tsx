@@ -12,8 +12,12 @@ import { FilePickerButton } from "@/features/link-input/file-picker-button";
 export function PracticeHeader() {
   return (
     <header className="sticky top-0 z-30">
-      {/* Warm blur veil so content scrolls gracefully under the bar. */}
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-canvas via-canvas/90 to-transparent backdrop-blur-[2px]" />
+      {/* Solid, with a soft fade only in the last few pixels. This was a
+          gradient to transparent, which worked when the page ended at the
+          player. Now that prose scrolls underneath, transparent meant body
+          text was readable straight through the bar. */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[calc(100%-0.75rem)] bg-canvas" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-3 bg-gradient-to-b from-canvas to-transparent" />
       <div className="relative mx-auto flex w-full max-w-5xl flex-wrap items-center gap-x-4 gap-y-2.5 px-4 py-4 sm:px-6">
         <Link
           href="/"

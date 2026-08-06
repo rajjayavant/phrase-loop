@@ -34,23 +34,17 @@ const SITE_URL = "https://phraseloop.online";
 // "AB repeat", "slow down" — rather than the brand alone, which nobody yet
 // knows to look for.
 const TITLE = "PhraseLoop — Loop a Section of Any Video | AB Repeat for Practice";
+// Kept under 155 characters so Google shows it in full rather than truncating.
 const DESCRIPTION =
-  "Slow down any YouTube video or your own file, mark the exact section you need, and repeat it until it feels natural. A focused practice instrument for musicians.";
+  "Loop a section of any YouTube video or your own file and slow it down to 0.25x, pitch intact, and repeat it until it feels natural. Free, no account.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: TITLE,
   description: DESCRIPTION,
   applicationName: "PhraseLoop",
-  keywords: [
-    "loop a section of a video",
-    "AB repeat",
-    "slow down video for practice",
-    "YouTube looper",
-    "music practice tool",
-    "loop YouTube video",
-    "practice difficult passages",
-  ],
+  // No `keywords`: Google has ignored the meta keywords tag since 2009, and
+  // publishing a target list only helps competitors.
   alternates: { canonical: "/" },
   // icon.png and apple-icon.png are picked up from src/app automatically;
   // naming them here keeps the intent explicit.
