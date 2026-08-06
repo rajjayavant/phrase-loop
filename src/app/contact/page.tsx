@@ -6,6 +6,14 @@ export const metadata: Metadata = {
   description:
     "Get in touch about PhraseLoop: bug reports, feature requests, privacy questions, or anything else about the practice tool.",
   alternates: { canonical: "/contact" },
+  openGraph: {
+    type: "website",
+    title: "Contact — PhraseLoop",
+    description:
+      "Get in touch about PhraseLoop: bug reports, feature requests, privacy questions, or anything else about the practice tool.",
+    url: "/contact",
+    images: [{ url: "/opengraph-image.png", width: 1200, height: 630 }],
+  },
 };
 
 export default function ContactPage() {

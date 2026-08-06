@@ -17,7 +17,7 @@ export default function NotFound() {
       actions={
         <>
           <Link href="/" className={buttonVariants({ variant: "primary" })}>
-            Start practising
+            Start practicing
           </Link>
           <Link href="/about" className={buttonVariants({ variant: "secondary" })}>
             About PhraseLoop

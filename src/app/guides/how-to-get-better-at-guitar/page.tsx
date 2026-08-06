@@ -6,14 +6,14 @@ import { AUTHOR } from "@/features/guides/guides";
 export const metadata: Metadata = {
   title: "How to Get Better at Guitar | The Habits That Actually Work",
   description:
-    "Practical advice on improving at guitar: practise the hard part rather than the whole song, work slowly, and keep sessions short and frequent.",
+    "Practical advice on improving at guitar: practice the hard part rather than the whole song, work slowly, and keep sessions short and frequent.",
   alternates: { canonical: "/guides/how-to-get-better-at-guitar" },
   authors: [{ name: AUTHOR.name, url: AUTHOR.url }],
   openGraph: {
     type: "article",
     title: "How to Get Better at Guitar | The Habits That Actually Work",
     description:
-      "Practical advice on improving at guitar: practise the hard part rather than the whole song, work slowly, and keep sessions short and frequent.",
+      "Practical advice on improving at guitar: practice the hard part rather than the whole song, work slowly, and keep sessions short and frequent.",
     url: "/guides/how-to-get-better-at-guitar",
     authors: [AUTHOR.name],
   },
@@ -48,14 +48,14 @@ export default function Page() {
         minutes on the hard bar is worth an hour of running the song. The
         method is in{" "}
         <Link href="/guides/how-to-practice-a-difficult-passage">
-          how to practise a difficult passage
+          how to practice a difficult passage
         </Link>
         .
       </p>
 
-      <h2>Practise slower than feels reasonable</h2>
+      <h2>Practice slower than feels reasonable</h2>
       <p>
-        Everyone knows they should practise slowly. Almost nobody practises
+        Everyone knows they should practice slowly. Almost nobody practices
         slowly enough, because a genuinely slow tempo feels like it cannot be
         productive.
       </p>
@@ -81,9 +81,9 @@ export default function Page() {
 
       <h2>Know what you are working on before you sit down</h2>
       <p>
-        Sessions without a target become playing rather than practising.
+        Sessions without a target become playing rather than practicing.
         Playing is worth doing and it is not the same activity, and confusing
-        the two is why some people practise for years without improving much.
+        the two is why some people practice for years without improving much.
       </p>
       <p>
         A target should be specific enough to fail: &ldquo;get bars 17 to 20
@@ -139,7 +139,7 @@ export default function Page() {
       </p>
       <p>
         The players who get good are not the ones who improved steadily. They
-        are the ones who kept practising through the flat parts.
+        are the ones who kept practicing through the flat parts.
       </p>
     </GuidePage>
   );

@@ -4,14 +4,14 @@ import { GuidePage } from "@/features/guides/guide-page";
 import { AUTHOR } from "@/features/guides/guides";
 
 export const metadata: Metadata = {
-  title: "How to Practise a Difficult Passage | Fix the Bar That Keeps Failing",
+  title: "How to Practice a Difficult Passage | Fix the Bar That Keeps Failing",
   description:
     "What to do with the two bars that keep going wrong: diagnose the real problem, isolate it, slow it down, and rebuild it at tempo.",
   alternates: { canonical: "/guides/how-to-practice-a-difficult-passage" },
   authors: [{ name: AUTHOR.name, url: AUTHOR.url }],
   openGraph: {
     type: "article",
-    title: "How to Practise a Difficult Passage | Fix the Bar That Keeps Failing",
+    title: "How to Practice a Difficult Passage | Fix the Bar That Keeps Failing",
     description:
       "What to do with the two bars that keep going wrong: diagnose the real problem, isolate it, slow it down, and rebuild it at tempo.",
     url: "/guides/how-to-practice-a-difficult-passage",
@@ -23,7 +23,7 @@ export default function Page() {
   return (
     <GuidePage
       slug="how-to-practice-a-difficult-passage"
-      title="How to practise a difficult passage"
+      title="How to practice a difficult passage"
       intro={
         <>
           Every piece has one. Two bars that fall apart every time, while
@@ -87,7 +87,7 @@ export default function Page() {
         percent faster. When a step fails, drop back rather than pushing. The
         detail is in{" "}
         <Link href="/guides/how-to-practice-slowly-and-speed-up">
-          how to practise slowly and speed up
+          how to practice slowly and speed up
         </Link>
         .
       </p>
@@ -105,7 +105,7 @@ export default function Page() {
         doing when they arrive.
       </p>
       <p>
-        Once the fragment is solid, practise it with one bar before and one bar
+        Once the fragment is solid, practice it with one bar before and one bar
         after. That is usually where the remaining problem lives, and it is a
         different problem from the one you just solved.
       </p>
@@ -113,7 +113,7 @@ export default function Page() {
       <h2>Stop before it degrades</h2>
       <p>
         There is a point in every session where repetitions start getting worse
-        rather than better. Continuing past it practises the deteriorated
+        rather than better. Continuing past it practices the deteriorated
         version.
       </p>
       <p>

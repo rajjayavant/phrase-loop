@@ -4,14 +4,14 @@ import { GuidePage } from "@/features/guides/guide-page";
 import { AUTHOR } from "@/features/guides/guides";
 
 export const metadata: Metadata = {
-  title: "How to Practise Slowly and Speed Up | The Method, Step by Step",
+  title: "How to Practice Slowly and Speed Up | The Method, Step by Step",
   description:
     "What tempo to start at, how much to raise it, and when to move up. The slow practice method applied to learning from a recording, not just a metronome.",
   alternates: { canonical: "/guides/how-to-practice-slowly-and-speed-up" },
   authors: [{ name: AUTHOR.name, url: AUTHOR.url }],
   openGraph: {
     type: "article",
-    title: "How to Practise Slowly and Speed Up | The Method, Step by Step",
+    title: "How to Practice Slowly and Speed Up | The Method, Step by Step",
     description:
       "What tempo to start at, how much to raise it, and when to move up. The slow practice method applied to learning from a recording, not just a metronome.",
     url: "/guides/how-to-practice-slowly-and-speed-up",
@@ -23,10 +23,10 @@ export default function Page() {
   return (
     <GuidePage
       slug="how-to-practice-slowly-and-speed-up"
-      title="How to practise slowly and speed up"
+      title="How to practice slowly and speed up"
       intro={
         <>
-          Every teacher says to practise slowly and gradually speed up. Far
+          Every teacher says to practice slowly and gradually speed up. Far
           fewer say what tempo to start at, how much to add each time, or how
           to tell when you have earned the increase. Those details are the
           difference between the method working and it feeling like a waste of
@@ -76,7 +76,7 @@ export default function Page() {
         almost unnoticeable, large enough that you get somewhere.
       </p>
       <p>
-        The point of small increments is that you should never be practising at
+        The point of small increments is that you should never be practicing at
         a tempo you cannot play. Every repetition should be a correct one. Big
         jumps mean spending time at a speed where you fumble, which is the
         thing the whole method exists to avoid.
@@ -99,7 +99,7 @@ export default function Page() {
       <p>
         You will hit a tempo where the passage falls apart. The instinct is to
         keep playing it at that speed until it improves. It will not. You are
-        practising the failure.
+        practicing the failure.
       </p>
       <p>
         Drop back to the last speed where you were clean, play it a few more
@@ -153,7 +153,7 @@ export default function Page() {
         ask whether the movement itself is sensible. Fix that first. There is
         more on diagnosing this in{" "}
         <Link href="/guides/how-to-practice-a-difficult-passage">
-          how to practise a difficult passage
+          how to practice a difficult passage
         </Link>
         .
       </p>

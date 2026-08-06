@@ -7,6 +7,14 @@ export const metadata: Metadata = {
   description:
     "PhraseLoop is a free practice tool for musicians: mark a passage of a video or audio file, slow it down, and loop it until it feels natural. Built by a working engineer and musician.",
   alternates: { canonical: "/about" },
+  openGraph: {
+    type: "website",
+    title: "About PhraseLoop — Why This Practice Tool Exists",
+    description:
+      "PhraseLoop is a free practice tool for musicians: mark a passage of a video or audio file, slow it down, and loop it until it feels natural. Built by a working engineer and musician.",
+    url: "/about",
+    images: [{ url: "/opengraph-image.png", width: 1200, height: 630 }],
+  },
 };
 
 export default function AboutPage() {

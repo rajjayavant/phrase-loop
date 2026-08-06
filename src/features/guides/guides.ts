@@ -46,6 +46,18 @@ export interface Guide {
   related: GuideSlug[];
 }
 
+/**
+ * ISO date these guides were published.
+ *
+ * Declared by hand rather than derived from the build, because a date that
+ * moves on every deploy tells search engines the content changed when it did
+ * not, and they learn to distrust it. Bump `UPDATED` only when a guide's text
+ * genuinely changes; it feeds `lastmod` in the sitemap and the visible
+ * "Updated" line on each guide.
+ */
+export const PUBLISHED = "2026-08-06";
+export const UPDATED = "2026-08-06";
+
 export const GUIDES: Guide[] = [
   {
     slug: "how-to-learn-a-guitar-solo",
@@ -61,7 +73,7 @@ export const GUIDES: Guide[] = [
   },
   {
     slug: "how-to-practice-slowly-and-speed-up",
-    linkTitle: "How to practise slowly and speed up",
+    linkTitle: "How to practice slowly and speed up",
     summary:
       "Why slow practice works, what tempo to start at, and how much to raise it each time.",
     related: [
@@ -85,7 +97,7 @@ export const GUIDES: Guide[] = [
   },
   {
     slug: "how-to-practice-a-difficult-passage",
-    linkTitle: "How to practise a difficult passage",
+    linkTitle: "How to practice a difficult passage",
     summary:
       "What to do with the two bars that keep going wrong, whatever you play.",
     related: [

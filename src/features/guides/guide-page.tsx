@@ -2,7 +2,20 @@ import * as React from "react";
 import Link from "next/link";
 import { Wordmark } from "@/components/brand/wordmark";
 import { SiteFooter } from "@/components/site-footer";
-import { AUTHOR, GUIDES, type GuideSlug } from "./guides";
+import { AUTHOR, GUIDES, PUBLISHED, UPDATED, type GuideSlug } from "./guides";
+
+const SITE = "https://phraseloop.online";
+/** Stable @id so Article, Person and SoftwareApplication form one graph. */
+export const PERSON_ID = `${SITE}/author/raj-jayavant#person`;
+
+function formatDate(iso: string): string {
+  return new Date(`${iso}T00:00:00Z`).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+}
 
 interface GuidePageProps {
   /** This guide's slug, so it can exclude itself from "related". */
@@ -28,6 +41,53 @@ export function GuidePage({ slug, title, intro, children }: GuidePageProps) {
   // Fall back to the first few other guides if nothing links back to this one,
   // so a page is never a dead end.
   const shown = (related.length > 0 ? related : GUIDES.filter((g) => g.slug !== slug)).slice(0, 3);
+
+  const url = `${SITE}/guides/${slug}`;
+  const summary = GUIDES.find((g) => g.slug === slug)?.summary ?? "";
+
+  // Article and BreadcrumbList in one graph. FAQPage and HowTo are avoided
+  // deliberately: Google deprecated both rich results, so they would render
+  // nothing. The author points at the Person @id on the author page rather
+  // than repeating the details, so the entities connect.
+  const schema = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Article",
+        "@id": `${url}#article`,
+        headline: title,
+        description: summary,
+        datePublished: PUBLISHED,
+        dateModified: UPDATED,
+        inLanguage: "en",
+        author: { "@id": PERSON_ID },
+        publisher: { "@id": `${SITE}#organization` },
+        mainEntityOfPage: { "@type": "WebPage", "@id": url },
+        image: `${url}/opengraph-image`,
+      },
+      {
+        "@type": "BreadcrumbList",
+        "@id": `${url}#breadcrumbs`,
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Home", item: SITE },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "Guides",
+            item: `${SITE}/guides`,
+          },
+          { "@type": "ListItem", position: 3, name: title, item: url },
+        ],
+      },
+      {
+        "@type": "Organization",
+        "@id": `${SITE}#organization`,
+        name: "PhraseLoop",
+        url: SITE,
+        logo: `${SITE}/icon.png`,
+      },
+    ],
+  };
 
   return (
     <div className="flex min-h-dvh flex-col">
@@ -69,6 +129,8 @@ export function GuidePage({ slug, title, intro, children }: GuidePageProps) {
           >
             {AUTHOR.name}
           </Link>
+          {" · Updated "}
+          <time dateTime={UPDATED}>{formatDate(UPDATED)}</time>
         </p>
 
         <div className="mt-3 text-body text-secondary">{intro}</div>
@@ -110,6 +172,10 @@ export function GuidePage({ slug, title, intro, children }: GuidePageProps) {
             </ul>
           </aside>
         )}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+        />
       </main>
 
       <SiteFooter />

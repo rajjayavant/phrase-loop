@@ -8,7 +8,7 @@ import { InstagramEmbeds } from "@/features/author/instagram-embeds";
 export const metadata: Metadata = {
   title: "Raj Jayavant | Musician and Builder of PhraseLoop",
   description:
-    "Raj Jayavant builds PhraseLoop, a practice tool for musicians. Guides on learning solos, practising slowly, and working songs out by ear.",
+    "Raj Jayavant builds PhraseLoop, a practice tool for musicians. Guides on learning solos, practicing slowly, and working songs out by ear.",
   alternates: { canonical: "/author/raj-jayavant" },
   openGraph: {
     type: "profile",
@@ -16,6 +16,7 @@ export const metadata: Metadata = {
     description:
       "Musician and developer. Builder of PhraseLoop, a practice tool for looping and slowing down passages.",
     url: "/author/raj-jayavant",
+    images: [{ url: "/opengraph-image.png", width: 1200, height: 630 }],
   },
 };
 
@@ -27,14 +28,14 @@ export const metadata: Metadata = {
  * instructional content. `Person` structured data ties the name, the site, and
  * the social profile together.
  *
- * The Instagram posts are plain links, not embeds. Instagram's oEmbed endpoint
- * requires a Facebook app and an access token, and scraping their markup is
- * both fragile and against their terms. Links cost nothing and never break.
+ * The Instagram posts use Instagram's own embed markup; see
+ * `features/author/instagram-embeds` for why it needs a re-process on mount.
  */
 export default function AuthorPage() {
   const schema = {
     "@context": "https://schema.org",
     "@type": "Person",
+    "@id": "https://phraseloop.online/author/raj-jayavant#person",
     name: AUTHOR.name,
     url: "https://phraseloop.online/author/raj-jayavant",
     sameAs: [AUTHOR.instagram],

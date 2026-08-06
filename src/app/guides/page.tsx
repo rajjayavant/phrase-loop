@@ -7,8 +7,16 @@ import { GUIDES } from "@/features/guides/guides";
 export const metadata: Metadata = {
   title: "Practice Guides | PhraseLoop",
   description:
-    "How to learn a solo, practise slowly and speed up, work a song out by ear, and get more out of the time you spend with your instrument.",
+    "How to learn a solo, practice slowly and speed up, work a song out by ear, and get more out of the time you spend with your instrument.",
   alternates: { canonical: "/guides" },
+  openGraph: {
+    type: "website",
+    title: "Practice Guides | PhraseLoop",
+    description:
+      "How to learn a solo, practice slowly and speed up, work a song out by ear, and get more out of the time you spend with your instrument.",
+    url: "/guides",
+    images: [{ url: "/opengraph-image.png", width: 1200, height: 630 }],
+  },
 };
 
 export default function GuidesIndexPage() {

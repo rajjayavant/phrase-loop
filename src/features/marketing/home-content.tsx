@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import Link from "next/link";
 
 /**
  * The server-rendered content beneath the player.
@@ -15,6 +16,22 @@ import type { ReactNode } from "react";
  *   - Written to be read. Headings carry search terms because that is how
  *     people phrase the problem, not because a keyword list demanded them.
  */
+
+/** The three guides most worth reaching from the homepage. */
+const FEATURED_GUIDES = [
+  {
+    href: "/guides/how-to-loop-a-section-of-a-youtube-video",
+    label: "How to loop a section of a YouTube video",
+  },
+  {
+    href: "/guides/how-to-slow-down-a-youtube-video",
+    label: "How to slow down a YouTube video",
+  },
+  {
+    href: "/guides/how-to-learn-a-guitar-solo",
+    label: "How to learn a guitar solo",
+  },
+] as const;
 
 interface Step {
   title: string;
@@ -140,7 +157,7 @@ const FAQ: Faq[] = [
     a: (
       <>
         Yes, and there is no account to create. Open the page and start
-        practising.
+        practicing.
       </>
     ),
   },
@@ -165,15 +182,15 @@ export function HomeContent() {
         id="about-phraseloop"
         className="font-display text-page-title font-semibold tracking-[-0.03em] text-primary"
       >
-        Slow down and loop any video, until the passage feels natural
+        Loop and slow down any section of a YouTube video, pitch intact
       </h1>
 
       <p className="mt-3 text-body text-secondary">
-        Practising a difficult bar means hearing it slowly, hearing it often,
+        Practicing a difficult bar means hearing it slowly, hearing it often,
         and not breaking your concentration to rewind. PhraseLoop marks the
-        passage once, drops the speed as far as you need, and repeats it for as
-        long as you keep playing. It works with any YouTube video or a file
-        from your own device.
+        passage once, drops the speed as far as you need, and repeats it until
+        it feels natural. It works with any YouTube video or a file from your
+        own device.
       </p>
 
       <h2 className="mt-10 font-display text-section-title font-semibold text-primary">
@@ -211,6 +228,33 @@ export function HomeContent() {
         overshoot it, so it comes round cleanly instead of clipping the first
         note of the phrase.
       </p>
+
+      <h2 className="mt-10 font-display text-section-title font-semibold text-primary">
+        Practice guides
+      </h2>
+      <p className="mt-3 text-body text-secondary">
+        Longer pieces on how to use the time you spend with the instrument.
+      </p>
+      <ul className="mt-4 space-y-2">
+        {FEATURED_GUIDES.map((guide) => (
+          <li key={guide.href}>
+            <Link
+              href={guide.href}
+              className="text-body text-accent underline-offset-4 hover:underline"
+            >
+              {guide.label}
+            </Link>
+          </li>
+        ))}
+        <li>
+          <Link
+            href="/guides"
+            className="text-body text-secondary underline-offset-4 hover:text-primary hover:underline"
+          >
+            All guides
+          </Link>
+        </li>
+      </ul>
 
       <h2 className="mt-10 font-display text-section-title font-semibold text-primary">
         Questions

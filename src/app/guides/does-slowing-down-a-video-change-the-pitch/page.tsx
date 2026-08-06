@@ -6,7 +6,7 @@ import { AUTHOR } from "@/features/guides/guides";
 export const metadata: Metadata = {
   title: "Does Slowing Down a Video Change the Pitch?",
   description:
-    "Short answer: no, not in a modern browser or on YouTube. Here is why the pitch stays put, when it does shift, and what that means for practising.",
+    "Short answer: no, not in a modern browser or on YouTube. Here is why the pitch stays put, when it does shift, and what that means for practicing.",
   alternates: {
     canonical: "/guides/does-slowing-down-a-video-change-the-pitch",
   },
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     type: "article",
     title: "Does Slowing Down a Video Change the Pitch?",
     description:
-      "Short answer: no, not in a modern browser or on YouTube. Here is why the pitch stays put, when it does shift, and what that means for practising.",
+      "Short answer: no, not in a modern browser or on YouTube. Here is why the pitch stays put, when it does shift, and what that means for practicing.",
     url: "/guides/does-slowing-down-a-video-change-the-pitch",
     authors: [AUTHOR.name],
   },
@@ -31,7 +31,7 @@ export default function Page() {
           <strong>No.</strong> On YouTube and in every current browser, slowing
           a video down keeps the audio at its original pitch. A song at half
           speed is slower but still in the same key. That was not always true,
-          and the reason it is true now is worth understanding if you practise
+          and the reason it is true now is worth understanding if you practice
           from recordings.
         </>
       }
@@ -94,7 +94,7 @@ export default function Page() {
         asked to invent a great deal of audio that was never recorded.
       </p>
 
-      <h2>Why this matters for practising</h2>
+      <h2>Why this matters for practicing</h2>
       <p>
         It is the reason slow practice from a recording works at all. If
         slowing a track dropped it a fourth or a fifth, you could not play

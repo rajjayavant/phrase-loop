@@ -102,11 +102,11 @@ export default function Page() {
       </p>
       <p>
         When a step goes wrong, go back one level rather than pushing through.
-        Practising a phrase you cannot yet play at that tempo teaches your
+        Practicing a phrase you cannot yet play at that tempo teaches your
         hands to make the mistake reliably. There is more on the mechanics of
         this in{" "}
         <Link href="/guides/how-to-practice-slowly-and-speed-up">
-          how to practise slowly and speed up
+          how to practice slowly and speed up
         </Link>
         .
       </p>
@@ -118,7 +118,7 @@ export default function Page() {
         between them.
       </p>
       <p>
-        Fix it by practising the join itself. Loop from the last two notes of
+        Fix it by practicing the join itself. Loop from the last two notes of
         one phrase into the first two of the next, and nothing else. It feels
         absurdly narrow, and it is much faster than running the whole solo and
         hoping.

@@ -21,7 +21,7 @@ interface HomePageProps {
  * `HomeContent` is passed as a child so it renders *below* the instrument and
  * above the footer: the tool stays the first thing a visitor sees, while the
  * page still has real indexable text. Crawlers do not care about source order
- * here, and neither does the reader who came to practise.
+ * here, and neither does the reader who came to practice.
  *
  * The local-file route deliberately omits it. That URL is reached by opening
  * your own file, never from search, so marketing copy would be noise.

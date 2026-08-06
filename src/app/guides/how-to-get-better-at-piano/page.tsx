@@ -36,7 +36,7 @@ export default function Page() {
       <h2>Hands separately, for longer than you want to</h2>
       <p>
         Piano asks each hand to do something independent, and the difficulty of
-        a passage is often entirely in one of them. Practising hands together
+        a passage is often entirely in one of them. Practicing hands together
         means the easy hand gets the same attention as the hard one.
       </p>
       <p>
@@ -68,7 +68,7 @@ export default function Page() {
 
       <h2>Slow enough to be accurate, every time</h2>
       <p>
-        The tempo to practise at is the fastest one where you play accurately
+        The tempo to practice at is the fastest one where you play accurately
         with no hesitation, three times in a row. If you are making mistakes,
         it is too fast.
       </p>
@@ -76,18 +76,18 @@ export default function Page() {
         Raise it about ten percent when you have earned it, and drop back when
         a step fails. The reasoning behind those numbers is in{" "}
         <Link href="/guides/how-to-practice-slowly-and-speed-up">
-          how to practise slowly and speed up
+          how to practice slowly and speed up
         </Link>
         .
       </p>
 
-      <h2>Practise the joins between sections</h2>
+      <h2>Practice the joins between sections</h2>
       <p>
         Sections learned separately create weak points at their boundaries. You
         can play section A and section B and stumble in the gap.
       </p>
       <p>
-        Fix it explicitly: practise the last beat of one section into the first
+        Fix it explicitly: practice the last beat of one section into the first
         beat of the next, and nothing else. It is a small drill that removes a
         problem which otherwise persists indefinitely.
       </p>
@@ -124,7 +124,7 @@ export default function Page() {
       </p>
       <p>
         When accuracy starts dropping within a session, stop working on that
-        passage. Continuing past that point practises the tired version of it.
+        passage. Continuing past that point practices the tired version of it.
       </p>
     </GuidePage>
   );

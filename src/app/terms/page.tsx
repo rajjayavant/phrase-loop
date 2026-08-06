@@ -7,6 +7,14 @@ export const metadata: Metadata = {
   description:
     "The terms for using PhraseLoop: acceptable use, how YouTube content is handled, your own files, intellectual property, and the limits of the service.",
   alternates: { canonical: "/terms" },
+  openGraph: {
+    type: "website",
+    title: "Terms of Service — PhraseLoop",
+    description:
+      "The terms for using PhraseLoop: acceptable use, how YouTube content is handled, your own files, intellectual property, and the limits of the service.",
+    url: "/terms",
+    images: [{ url: "/opengraph-image.png", width: 1200, height: 630 }],
+  },
 };
 
 export default function TermsPage() {

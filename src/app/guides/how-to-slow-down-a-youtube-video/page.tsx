@@ -93,10 +93,10 @@ export default function Page() {
       </p>
       <p>
         For playing along, use the fastest speed at which you play accurately.
-        That is often higher than you expect, and practising below it wastes
+        That is often higher than you expect, and practicing below it wastes
         time. There is a fuller treatment in{" "}
         <Link href="/guides/how-to-practice-slowly-and-speed-up">
-          how to practise slowly and speed up
+          how to practice slowly and speed up
         </Link>
         .
       </p>

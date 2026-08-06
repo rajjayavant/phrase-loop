@@ -7,6 +7,14 @@ export const metadata: Metadata = {
   description:
     "How PhraseLoop handles your data: no accounts, no uploads, no tracking of your practice. Files you open stay on your device. Details on browser storage, analytics, and embeds.",
   alternates: { canonical: "/privacy" },
+  openGraph: {
+    type: "website",
+    title: "Privacy Policy — PhraseLoop",
+    description:
+      "How PhraseLoop handles your data: no accounts, no uploads, no tracking of your practice. Files you open stay on your device. Details on browser storage, analytics, and embeds.",
+    url: "/privacy",
+    images: [{ url: "/opengraph-image.png", width: 1200, height: 630 }],
+  },
 };
 
 export default function PrivacyPage() {

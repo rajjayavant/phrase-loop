@@ -22,7 +22,7 @@ const SCHEMA = {
   applicationSubCategory: "Music practice tool",
   operatingSystem: "Any modern web browser",
   description:
-    "Loop a section of any YouTube video or local file and slow it down to practise it, without changing the pitch.",
+    "Loop a section of any YouTube video or local file and slow it down to practice it, without changing the pitch.",
   featureList: [
     "A and B loop markers",
     "Playback speed from 0.25x to 2x with pitch preserved",
@@ -30,6 +30,8 @@ const SCHEMA = {
     "Shareable links that keep the markers and speed",
     "Keyboard shortcuts",
   ],
+  author: { "@id": "https://phraseloop.online/author/raj-jayavant#person" },
+  creator: { "@id": "https://phraseloop.online/author/raj-jayavant#person" },
   offers: {
     "@type": "Offer",
     price: "0",
