@@ -49,7 +49,12 @@ export function FilePickerButton({
       >
         <Upload className="h-4 w-4" />
         {compact ? (
-          <span className="hidden sm:inline">Upload video</span>
+          <>
+            {/* Visible from sm up; below that the label is still exposed to
+                assistive tech, or the button would be an unnamed icon. */}
+            <span className="hidden sm:inline">Upload video</span>
+            <span className="sr-only sm:hidden">Upload video</span>
+          </>
         ) : (
           "Upload video"
         )}

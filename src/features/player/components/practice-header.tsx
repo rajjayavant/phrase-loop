@@ -52,6 +52,8 @@ export function PracticeHeader() {
                 <Button variant="secondary" size="sm" className="gap-1.5">
                   <Link2 className="h-4 w-4" />
                   <span className="hidden sm:inline">Copy link</span>
+                  {/* Keeps the button named when the label is hidden. */}
+                  <span className="sr-only sm:hidden">Copy link</span>
                 </Button>
               }
             />

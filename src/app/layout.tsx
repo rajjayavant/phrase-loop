@@ -89,6 +89,16 @@ export default function RootLayout({
       data-theme="dark"
       className={`${poppins.variable} ${inter.variable} ${jetbrainsMono.variable}`}
     >
+      <head>
+        {/* The YouTube player and analytics are both third-party and both on
+            the critical path for the player. Opening the connections early
+            saves the DNS, TCP and TLS round trips when the scripts are
+            actually requested. */}
+        <link rel="preconnect" href="https://www.youtube.com" />
+        <link rel="preconnect" href="https://i.ytimg.com" />
+        <link rel="preconnect" href="https://www.googletagmanager.com" />
+        <link rel="dns-prefetch" href="https://www.google-analytics.com" />
+      </head>
       <body>
         <TooltipProvider delayDuration={300} skipDelayDuration={200}>
           {children}

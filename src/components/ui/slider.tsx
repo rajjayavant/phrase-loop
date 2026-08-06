@@ -14,7 +14,10 @@ export interface SliderProps extends React.ComponentPropsWithoutRef<
 export const Slider = React.forwardRef<
   React.ElementRef<typeof SliderPrimitive.Root>,
   SliderProps
->(({ className, label, ...props }, ref) => (
+>(({ className, label, "aria-valuetext": valueText, ...props }, ref) => (
+  // `aria-valuetext` belongs on the thumb, which is the element carrying
+  // role="slider". Radix's Root renders a plain span, so spreading it there
+  // produces an aria attribute that is invalid for the element's role.
   <SliderPrimitive.Root
     ref={ref}
     className={cn(
@@ -29,6 +32,7 @@ export const Slider = React.forwardRef<
     </SliderPrimitive.Track>
     <SliderPrimitive.Thumb
       aria-label={label}
+      aria-valuetext={valueText}
       className={cn(
         "block h-4 w-4 rounded-pill bg-primary shadow-tooltip",
         "border-2 border-accent",
