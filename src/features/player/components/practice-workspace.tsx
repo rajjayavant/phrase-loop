@@ -237,6 +237,7 @@ function SourceWorkspace({
         <PlayerSurface
           containerRef={containerRef}
           audioFile={file && isAudioFile(file) ? file : null}
+          posterVideoId={kind === "youtube" ? (videoId ?? null) : null}
         />
 
         {/* The console: timeline, transport and speed read as one continuous

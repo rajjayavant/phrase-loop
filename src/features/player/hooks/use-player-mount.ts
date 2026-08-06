@@ -36,10 +36,17 @@ export function usePlayerMount({
   const containerRef = React.useRef<HTMLDivElement>(null);
   const attachAdapter = usePlayerStore((s) => s.attachAdapter);
   const detachAdapter = usePlayerStore((s) => s.detachAdapter);
+  const activation = usePlayerStore((s) => s.activation);
 
   React.useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
+
+    // Behind the facade: no adapter, no iframe, no third-party script until
+    // the visitor expresses intent (see `activation` in the store). Mock and
+    // local sources are exempt — they are same-origin and cost nothing, and
+    // the e2e suite drives the mock without a facade click.
+    if (kind === "youtube" && activation === "pending") return;
 
     let cancelled = false;
 
@@ -101,7 +108,7 @@ export function usePlayerMount({
       // Clear the mount node so StrictMode's second pass starts clean.
       container.replaceChildren();
     };
-  }, [videoId, startSeconds, kind, file, attachAdapter, detachAdapter]);
+  }, [videoId, startSeconds, kind, file, activation, attachAdapter, detachAdapter]);
 
   return { containerRef };
 }

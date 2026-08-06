@@ -18,6 +18,22 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          {
+            // Set here rather than in nginx so it survives server re-provisioning.
+            // No `preload` until the site has run with HSTS long enough to be
+            // sure — preload-list removal takes months.
+            key: "Strict-Transport-Security",
+            value: "max-age=31536000; includeSubDomains",
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;

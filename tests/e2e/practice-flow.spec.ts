@@ -11,8 +11,8 @@ const SAMPLE_MEDIA = fileURLToPath(
 );
 
 const VIDEO_ID = "dQw4w9WgXcQ";
-const practiceUrl = (params = "") =>
-  `/practice?v=${VIDEO_ID}&mock=1${params}`;
+// The player lives at the root now; /practice is a legacy redirect.
+const practiceUrl = (params = "") => `/?v=${VIDEO_ID}&mock=1${params}`;
 
 async function startPlayer(page: Page) {
   await page.getByRole("button", { name: "Start playback" }).click();
@@ -31,11 +31,23 @@ async function openAdvanced(page: Page) {
 const loopButton = (page: Page) =>
   page.getByRole("button", { name: /able looping/ });
 
-test("root redirects into the practice workspace (default video)", async ({
+test("the root is the practice workspace (default video)", async ({
   page,
 }) => {
   await page.goto("/");
-  await expect(page).toHaveURL(/\/practice\?v=[A-Za-z0-9_-]{11}/);
+  // URL sync mirrors the default video id into the address bar. No YouTube
+  // iframe is involved: before activation the surface is a thumbnail facade.
+  await expect(page).toHaveURL(/\/\?v=[A-Za-z0-9_-]{11}/);
+  await expect(
+    page.getByRole("button", { name: "Load the player and start playback" }),
+  ).toBeVisible();
+});
+
+test("the legacy /practice URL redirects here with its query intact", async ({
+  page,
+}) => {
+  await page.goto(`/practice?v=${VIDEO_ID}&mock=1`);
+  await expect(page).toHaveURL(new RegExp(`/\\?v=${VIDEO_ID}`));
 });
 
 test("header link input loads another video in place", async ({ page }) => {
@@ -43,14 +55,20 @@ test("header link input loads another video in place", async ({ page }) => {
   await page
     .getByLabel("Load another YouTube video")
     .fill("https://www.youtube.com/watch?v=" + VIDEO_ID);
-  await page.getByRole("button", { name: "Load video" }).click();
-  await expect(page).toHaveURL(new RegExp(`/practice\\?v=${VIDEO_ID}`));
+  // exact: "Load video" is otherwise a substring match for "Upload video".
+  await page.getByRole("button", { name: "Load video", exact: true }).click();
+  await expect(page).toHaveURL(new RegExp(`/\\?v=${VIDEO_ID}`));
 });
 
-test("invalid link shows the invalid-link state", async ({ page }) => {
-  await page.goto("/practice?v=not-valid");
+test("an invalid video id falls back to the default video", async ({
+  page,
+}) => {
+  // By design the root is never a dead end: a malformed ?v= is dropped by
+  // validation and the default video loads instead.
+  await page.goto("/?v=not-valid");
+  await expect(page).toHaveURL(/\/\?v=[A-Za-z0-9_-]{11}/);
   await expect(
-    page.getByRole("heading", { name: "No video to practice" }),
+    page.getByRole("button", { name: "Load the player and start playback" }),
   ).toBeVisible();
 });
 
@@ -103,8 +121,9 @@ test("hydrates state from the URL", async ({ page }) => {
   await page.goto(practiceUrl("&a=12&b=20&speed=0.75&loop=1"));
   await page.waitForTimeout(800);
   await openAdvanced(page);
-  // Speed input reflects the URL.
-  await expect(page.getByLabel("Exact playback speed")).toHaveValue("0.75");
+  // The speed row's applied-rate readout reflects the URL. (The exact-entry
+  // field was removed; the slider + presets in SpeedRow are the only control.)
+  await expect(page.getByText("0.75×").first()).toBeVisible();
   // Marker timestamps reflect the URL.
   await expect(page.getByLabel("Marker A timestamp")).toHaveValue("00:12.000");
   await expect(page.getByLabel("Marker B timestamp")).toHaveValue("00:20.000");
@@ -173,12 +192,14 @@ test("a fresh video defaults to a whole-clip loop", async ({ page }) => {
 test("opens the keyboard shortcuts dialog", async ({ page }) => {
   await page.goto(practiceUrl());
   await page.getByRole("button", { name: /Shortcuts/ }).click();
+  // exact: the marketing FAQ's "What are the keyboard shortcuts?" heading is
+  // on the page too, and role-name matching is substring by default.
   await expect(
-    page.getByRole("heading", { name: "Keyboard shortcuts" }),
+    page.getByRole("heading", { name: "Keyboard shortcuts", exact: true }),
   ).toBeVisible();
   await page.keyboard.press("Escape");
   await expect(
-    page.getByRole("heading", { name: "Keyboard shortcuts" }),
+    page.getByRole("heading", { name: "Keyboard shortcuts", exact: true }),
   ).not.toBeVisible();
 });
 

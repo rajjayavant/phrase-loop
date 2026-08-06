@@ -14,6 +14,12 @@ interface PlayerSurfaceProps {
    * visualizer takes the faceplate instead of leaving a black rectangle.
    */
   audioFile?: File | null;
+  /**
+   * YouTube id whose thumbnail backs the facade before activation. Only set
+   * for the YouTube source; local and mock sources load eagerly and never
+   * show a facade.
+   */
+  posterVideoId?: string | null;
 }
 
 const ERROR_TITLES: Record<string, string> = {
@@ -36,13 +42,27 @@ const ERROR_TITLES: Record<string, string> = {
 export function PlayerSurface({
   containerRef,
   audioFile = null,
+  posterVideoId = null,
 }: PlayerSurfaceProps) {
   const status = usePlayerStore((s) => s.status);
   const error = usePlayerStore((s) => s.error);
   const play = usePlayerStore((s) => s.play);
+  const activation = usePlayerStore((s) => s.activation);
+  const starting = usePlayerStore((s) => s.starting);
 
-  const isLoading = status === "loading" || status === "idle";
-  const isReadyToStart = status === "ready";
+  // Pre-activation facade: the video's own thumbnail with the start button.
+  // The YouTube iframe (and its ~1 MB of script) does not exist yet — it is
+  // created when this overlay's `play` fires. See `activation` in the store.
+  const showFacade = posterVideoId != null && activation === "pending";
+  // From the activation gesture until playback begins, the facade picture
+  // holds steady: poster on top of the booting iframe, start button showing a
+  // spinner in place. One picture, no black flash, no overlay churn.
+  const showStarting = posterVideoId != null && starting;
+  const holdPoster = showFacade || showStarting;
+
+  const isLoading =
+    !holdPoster && (status === "loading" || status === "idle");
+  const isReadyToStart = !holdPoster && status === "ready";
 
   return (
     <div className="relative isolate">
@@ -67,17 +87,49 @@ export function PlayerSurface({
         )}
       >
         <div className="relative aspect-video w-full">
+          {/* Facade poster. Rendered ABOVE the mount node (z-[1]) and kept
+              there until playback actually starts, so the iframe boots — and
+              flashes black — invisibly underneath it. Unmounted the moment
+              `starting` clears. Decorative — the start button (in the z-[2]
+              overlay above it) carries the accessible name. */}
+          {holdPoster && !audioFile && posterVideoId != null && (
+            <PosterImage videoId={posterVideoId} />
+          )}
           {/* For audio the mount node holds a screen-reader-only <audio>
               element, so the waveform fills the panel behind the overlays. */}
           {audioFile && <AudioVisualizer file={audioFile} />}
           <div
             ref={containerRef}
             className={cn(
-              "h-full w-full [&_iframe]:h-full [&_iframe]:w-full",
+              "relative h-full w-full [&_iframe]:h-full [&_iframe]:w-full",
               audioFile && "absolute inset-0",
             )}
           />
         </div>
+
+        {holdPoster && !error && (
+          // Light scrim: the thumbnail IS the content here — the heavy
+          // gradient + backdrop blur made it look muddy and out of focus.
+          <Overlay interactive={showFacade} light>
+            <StartButton
+              onClick={play}
+              label="Load the player and start playback"
+              onWarm={warmYouTubeConnections}
+              pending={showStarting}
+            />
+            {/* Own scrim pill: over the light overlay the caption sits on the
+                raw thumbnail, which can be arbitrarily bright or busy. */}
+            <p className="mt-5 rounded-pill bg-black/65 px-4 py-1.5 text-small-body text-primary backdrop-blur-sm">
+              {showStarting ? (
+                "Starting…"
+              ) : (
+                <>
+                  Press <Kbd>Space</Kbd> or click to begin
+                </>
+              )}
+            </p>
+          </Overlay>
+        )}
 
         {isLoading && !error && (
           <Overlay>
@@ -90,20 +142,7 @@ export function PlayerSurface({
 
         {isReadyToStart && !error && (
           <Overlay interactive light={audioFile != null}>
-            <button
-              type="button"
-              onClick={play}
-              aria-label="Start playback"
-              className={cn(
-                "group grid h-20 w-20 place-items-center rounded-full",
-                "bg-accent text-accent-contrast",
-                "shadow-[0_10px_40px_-8px_rgba(224,86,31,0.6)]",
-                "transition-transform duration-hover ease-emphasized hover:scale-105 active:scale-95",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-4 focus-visible:ring-offset-black",
-              )}
-            >
-              <Play className="h-8 w-8 translate-x-0.5 fill-current" />
-            </button>
+            <StartButton onClick={play} label="Start playback" />
             <p className="mt-5 text-small-body text-secondary">
               Press <Kbd>Space</Kbd> or click to begin
             </p>
@@ -143,6 +182,102 @@ export function PlayerSurface({
   );
 }
 
+/**
+ * The facade thumbnail, sharpest available first. The faceplate renders at
+ * ~850 px, so hqdefault (480×360) alone looks pixelated — but maxresdefault
+ * (1280×720) only exists for some videos, so on 404 we step down. YouTube
+ * serves a 120×90 grey placeholder instead of a 404 for missing maxres; it is
+ * detectable by its natural width.
+ */
+function PosterImage({ videoId }: { videoId: string }) {
+  const QUALITIES = ["maxresdefault", "hqdefault"] as const;
+  const [quality, setQuality] = React.useState(0);
+
+  const stepDown = (img: HTMLImageElement) => {
+    // The missing-thumbnail placeholder is 120×90; a real frame never is.
+    if (quality < QUALITIES.length - 1 && img.naturalWidth <= 120) {
+      setQuality((q) => q + 1);
+    }
+  };
+
+  return (
+    // eslint-disable-next-line @next/next/no-img-element -- remote host,
+    // fixed size, above the fold: plain <img> avoids adding a remotePatterns
+    // config for a single decorative poster.
+    <img
+      src={`https://i.ytimg.com/vi/${videoId}/${QUALITIES[quality]}.jpg`}
+      alt=""
+      fetchPriority="high"
+      onLoad={(e) => stepDown(e.currentTarget)}
+      onError={() => setQuality((q) => Math.min(q + 1, QUALITIES.length - 1))}
+      className="absolute inset-0 z-[1] h-full w-full object-cover"
+    />
+  );
+}
+
+/** The big orange start control, shared by the facade and the ready overlay. */
+function StartButton({
+  onClick,
+  label,
+  onWarm,
+  pending = false,
+}: {
+  onClick: () => void;
+  label: string;
+  /** Fired on hover/focus — a head start on DNS + TLS before the click. */
+  onWarm?: () => void;
+  /**
+   * The start is in flight: same button, same spot, but its glyph becomes a
+   * spinner. Swapping the icon in place — rather than swapping overlays —
+   * is what keeps the click-to-playing stretch visually still.
+   */
+  pending?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={pending ? undefined : onClick}
+      onPointerEnter={onWarm}
+      onFocus={onWarm}
+      aria-label={pending ? "Starting playback" : label}
+      aria-disabled={pending}
+      className={cn(
+        "group grid h-20 w-20 place-items-center rounded-full",
+        "bg-accent text-accent-contrast",
+        "shadow-[0_10px_40px_-8px_rgba(224,86,31,0.6)]",
+        "transition-transform duration-hover ease-emphasized",
+        !pending && "hover:scale-105 active:scale-95",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-4 focus-visible:ring-offset-black",
+      )}
+    >
+      {pending ? (
+        <Loader2 className="h-8 w-8 animate-spin motion-reduce:animate-none" />
+      ) : (
+        <Play className="h-8 w-8 translate-x-0.5 fill-current" />
+      )}
+    </button>
+  );
+}
+
+/**
+ * Preconnect to the hosts the YouTube player will hit the moment activation
+ * happens. Safe to call repeatedly; injects each link once.
+ */
+function warmYouTubeConnections() {
+  // Media segments come from per-session *.googlevideo.com subdomains, so
+  // preconnecting that host is pointless; these two are the fixed ones the
+  // IFrame API hits first.
+  for (const origin of ["https://www.youtube.com", "https://www.google.com"]) {
+    const id = `preconnect-${origin.replace(/\W/g, "")}`;
+    if (document.getElementById(id)) continue;
+    const link = document.createElement("link");
+    link.id = id;
+    link.rel = "preconnect";
+    link.href = origin;
+    document.head.appendChild(link);
+  }
+}
+
 function Overlay({
   children,
   interactive,
@@ -160,7 +295,10 @@ function Overlay({
   return (
     <div
       className={cn(
-        "absolute inset-0 flex flex-col items-center justify-center px-5 text-center",
+        // z-[2]: overlays must beat the facade poster (z-[1]), which itself
+        // sits above the booting iframe. Without this the poster paints over
+        // the start button.
+        "absolute inset-0 z-[2] flex flex-col items-center justify-center px-5 text-center",
         light
           ? "bg-black/35"
           : "bg-gradient-to-b from-black/70 via-black/80 to-black/90 backdrop-blur-sm",

@@ -55,9 +55,29 @@ import type {
 
 export type ActiveMarker = "A" | "B";
 
+/**
+ * Whether the visitor has expressed intent to play. The YouTube iframe (and
+ * the IFrame API script) load only after activation — before that the surface
+ * shows a thumbnail facade. YouTube's embed shifts its own internal layout
+ * while booting, which counts toward the page's field CLS even though it
+ * happens inside a cross-origin iframe, and it pulls ~1 MB of third-party JS.
+ * Page-level, not per-source: once a visitor has activated, every subsequent
+ * video loads eagerly.
+ */
+export type PlayerActivation = "pending" | "active";
+
 export interface PlayerStoreState {
   adapter: PlayerAdapter | null;
   videoId: string | null;
+  activation: PlayerActivation;
+  /**
+   * True from the activation gesture until playback actually begins. The
+   * surface holds one steady picture for the whole stretch — poster up, start
+   * button showing a spinner in place — instead of cycling facade → black
+   * iframe → ready overlay, and transport intents are ignored so an impatient
+   * second press of Space cannot pause the video it just asked for.
+   */
+  starting: boolean;
   status: PlayerStatus;
   error: PlayerError | null;
   duration: number;
@@ -71,6 +91,12 @@ export interface PlayerStoreState {
   timelineMode: TimelineMode;
 
   // --- lifecycle ---
+  /**
+   * First user intent (facade click, Space, or pasting a link): allows the
+   * mount hook to create the YouTube adapter, and arms play-on-ready so the
+   * gesture that activated also starts playback.
+   */
+  activate: () => void;
   attachAdapter: (adapter: PlayerAdapter, videoId: string) => void;
   detachAdapter: () => void;
   /** Clear all per-source state (loop, speed, duration) before seeding a new one. */
@@ -166,9 +192,18 @@ let pendingWholeClipLoop = false;
  */
 let seekToMarkerAOnReady = false;
 
+/**
+ * Set by `activate`, consumed by `onPlayerReady`: the gesture that dismissed
+ * the facade should also start playback, without a second click. Module-level
+ * like the flags above — nothing re-renders on it.
+ */
+let playOnActivate = false;
+
 export const usePlayerStore = create<PlayerStoreState>((set, get) => ({
   adapter: null,
   videoId: null,
+  activation: "pending",
+  starting: false,
   status: "idle",
   error: null,
   duration: 0,
@@ -179,6 +214,12 @@ export const usePlayerStore = create<PlayerStoreState>((set, get) => ({
   activeMarker: "A",
   nudgePrecision: 0.1,
   timelineMode: "full",
+
+  activate: () => {
+    if (get().activation === "active") return;
+    playOnActivate = true;
+    set({ activation: "active", starting: true });
+  },
 
   attachAdapter: (adapter, videoId) =>
     set({ adapter, videoId, error: null, status: "loading" }),
@@ -204,8 +245,15 @@ export const usePlayerStore = create<PlayerStoreState>((set, get) => ({
     });
   },
 
-  setStatus: (status) => set({ status }),
-  setError: (error) => set({ error, status: error ? "error" : get().status }),
+  setStatus: (status) =>
+    set((state) =>
+      // Playback has genuinely begun — the starting hold is over.
+      status === "playing" && state.starting
+        ? { status, starting: false }
+        : { status },
+    ),
+  setError: (error) =>
+    set({ error, starting: false, status: error ? "error" : get().status }),
   setDuration: (duration) => {
     set({ duration });
     // Complete a pending whole-clip loop now that we know the end.
@@ -254,15 +302,44 @@ export const usePlayerStore = create<PlayerStoreState>((set, get) => ({
       adapter.seekTo(loop.markerA);
     }
     seekToMarkerAOnReady = false;
+    // The click that dismissed the facade is the play gesture; don't ask for a
+    // second one. Programmatic play works here because the IFrame API's iframe
+    // carries allow="autoplay" and the page holds sticky user activation from
+    // that click.
+    if (playOnActivate) {
+      playOnActivate = false;
+      adapter.play();
+      // If a strict browser refuses the delegated autoplay anyway, drop the
+      // starting hold so the ready overlay (with a clickable start button)
+      // comes back instead of a spinner that never resolves.
+      setTimeout(() => {
+        if (get().starting && get().status !== "playing") {
+          set({ starting: false });
+        }
+      }, 4000);
+    }
   },
 
   togglePlay: () => {
-    const { status, play, pause } = get();
+    const { starting, status, play, pause } = get();
+    // A start is already in flight; a second impatient press must not queue a
+    // pause against the playback the first press asked for.
+    if (starting) return;
     if (status === "playing" || status === "buffering") pause();
     else play();
   },
 
-  play: () => get().adapter?.play(),
+  play: () => {
+    const { adapter, activation, activate } = get();
+    // No adapter yet because the facade is still up: this press (Space, or the
+    // facade button) is the activation gesture. The mount hook reacts to the
+    // state change, creates the adapter, and `onPlayerReady` starts playback.
+    if (!adapter && activation === "pending") {
+      activate();
+      return;
+    }
+    adapter?.play();
+  },
   pause: () => get().adapter?.pause(),
 
   seekTo: (seconds) => {
