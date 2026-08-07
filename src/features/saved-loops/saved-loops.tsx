@@ -24,10 +24,13 @@ interface SavedLoopsProps {
 }
 
 /**
- * The Saved Loops shelf: every video or file the user has practiced, one tile
- * each, newest first, with the last-used loop configuration baked into the
- * tile's link. Local entries appear only while their file is still in the
- * IndexedDB cache — a tile that cannot open is worse than no tile.
+ * The "Recently looped" shelf: every video or file the user has practiced,
+ * one tile each, newest first, with the last-used loop configuration baked
+ * into the tile's link. Nothing is saved manually — practicing IS the save,
+ * and opening a tile bumps it back to the front, which is why the shelf is
+ * named for recency rather than for saving. Local entries appear only while
+ * their file is still in the IndexedDB cache — a tile that cannot open is
+ * worse than no tile.
  */
 export function SavedLoops({ currentKey = null }: SavedLoopsProps) {
   const router = useRouter();
@@ -59,13 +62,10 @@ export function SavedLoops({ currentKey = null }: SavedLoopsProps) {
   if (entries === null) return null;
 
   return (
-    <section aria-label="Saved loops">
-      <div className="mb-3 flex items-baseline justify-between px-1">
-        <h2 className="text-[0.72rem] font-medium uppercase tracking-[0.12em] text-muted">
-          Saved loops
-        </h2>
-
-      </div>
+    <section aria-label="Recently looped">
+      <h2 className="mb-3 px-1 text-[0.72rem] font-medium uppercase tracking-[0.12em] text-muted">
+        Recently looped
+      </h2>
 
       {entries.length === 0 ? (
         <EmptyState />
@@ -99,7 +99,7 @@ export function SavedLoops({ currentKey = null }: SavedLoopsProps) {
               </button>
               <button
                 type="button"
-                aria-label={`Remove ${entry.title ?? fallbackTitle(entry)} from saved loops`}
+                aria-label={`Remove ${entry.title ?? fallbackTitle(entry)} from recently looped`}
                 onClick={() => {
                   removeSavedLoop(entry.key);
                   setEntries((prev) =>
@@ -196,10 +196,10 @@ function EmptyState() {
         <Repeat className="h-5 w-5" aria-hidden="true" />
       </div>
       <p className="mt-3 text-small-body font-medium text-primary">
-        No saved loops yet
+        Nothing looped yet
       </p>
       <p className="mt-1 max-w-sm text-helper text-muted">
-        Every video or file you practice lands here automatically, with its
+        Every video or file you loop shows up here automatically, with its
         markers and speed, ready to pick back up.
       </p>
     </div>

@@ -203,15 +203,15 @@ test("opens the keyboard shortcuts dialog", async ({ page }) => {
   ).not.toBeVisible();
 });
 
-test("saved loops shows an empty state before anything is practiced", async ({
+test("recently looped shows an empty state before anything is practiced", async ({
   page,
 }) => {
   await page.goto(practiceUrl());
   // The mock source is never recorded, so a fresh context has no entries.
-  await expect(page.getByText("No saved loops yet")).toBeVisible();
+  await expect(page.getByText("Nothing looped yet")).toBeVisible();
 });
 
-test("a practiced local file appears in Saved Loops and reopens with its loop", async ({
+test("a practiced local file appears in Recently looped and reopens with its loop", async ({
   page,
 }) => {
   await page.goto(practiceUrl());
