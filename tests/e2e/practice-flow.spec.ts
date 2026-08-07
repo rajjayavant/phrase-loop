@@ -203,6 +203,35 @@ test("opens the keyboard shortcuts dialog", async ({ page }) => {
   ).not.toBeVisible();
 });
 
+test("saved loops shows an empty state before anything is practiced", async ({
+  page,
+}) => {
+  await page.goto(practiceUrl());
+  // The mock source is never recorded, so a fresh context has no entries.
+  await expect(page.getByText("No saved loops yet")).toBeVisible();
+});
+
+test("a practiced local file appears in Saved Loops and reopens with its loop", async ({
+  page,
+}) => {
+  await page.goto(practiceUrl());
+  await page.waitForTimeout(500);
+  await page.locator('input[type="file"]').setInputFiles(SAMPLE_MEDIA);
+  await expect(page).toHaveURL(/src=local%3A[a-f0-9]+/);
+  // Recorder debounce (700 ms) after the duration becomes known.
+  await page.waitForTimeout(1500);
+
+  // Back on the (mock) YouTube video, the file shows up on the shelf.
+  await page.goto(practiceUrl());
+  const tile = page.getByRole("button", { name: /^sample\.mp4/ });
+  await expect(tile).toBeVisible();
+
+  // Reopening carries the loop configuration in the URL.
+  await tile.click();
+  await expect(page).toHaveURL(/src=local%3A[a-f0-9]+/);
+  await expect(page).toHaveURL(/loop=1/);
+});
+
 test("opening a local media file plays it with full practice controls", async ({
   page,
 }) => {

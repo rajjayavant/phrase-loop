@@ -199,6 +199,10 @@ export class LocalFilePlayerAdapter implements PlayerAdapter {
     return this.media?.muted ?? false;
   }
 
+  getMediaTitle(): string | null {
+    return this.file.name || null;
+  }
+
   isReady(): boolean {
     return this.ready && !this.destroyed;
   }

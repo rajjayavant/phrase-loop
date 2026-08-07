@@ -21,6 +21,12 @@ import { toast } from "@/components/ui";
 import { FileDropZone } from "@/features/link-input/file-drop-zone";
 import { SiteFooter } from "@/components/site-footer";
 import { useKeyboardShortcuts } from "@/features/shortcuts/use-keyboard-shortcuts";
+import { SavedLoops } from "@/features/saved-loops/saved-loops";
+import { useSavedLoopRecorder } from "@/features/saved-loops/use-saved-loop-recorder";
+import {
+  localLoopKey,
+  youtubeLoopKey,
+} from "@/features/saved-loops/saved-loops-storage";
 import { useSessionSync } from "@/features/session/use-session-sync";
 import { useUrlSync } from "@/features/session/use-url-sync";
 import {
@@ -223,6 +229,7 @@ function SourceWorkspace({
   usePlayheadClock();
   useKeyboardShortcuts();
   useSessionSync(source === "local" ? null : (videoId ?? null));
+  useSavedLoopRecorder({ kind, videoId, localId, file });
   useUrlSync(
     source === "local"
       ? { localId: localId ?? "" }
@@ -260,6 +267,19 @@ function SourceWorkspace({
         </div>
 
         <AdvancedSettings />
+
+        {/* The shelf of previously practiced loops, one tile each. Below the
+            instrument so the current session stays the focus; above the
+            marketing content because it IS practice material. */}
+        <SavedLoops
+          currentKey={
+            kind === "youtube" && videoId
+              ? youtubeLoopKey(videoId)
+              : kind === "local" && file
+                ? localLoopKey(file)
+                : null
+          }
+        />
       </main>
 
       {/* Mobile transport dock */}

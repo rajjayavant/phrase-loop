@@ -201,9 +201,9 @@ function PosterImage({ videoId }: { videoId: string }) {
   };
 
   return (
-    // eslint-disable-next-line @next/next/no-img-element -- remote host,
-    // fixed size, above the fold: plain <img> avoids adding a remotePatterns
-    // config for a single decorative poster.
+    // Remote host, fixed size, above the fold: plain <img> avoids adding a
+    // remotePatterns config for a single decorative poster.
+    // eslint-disable-next-line @next/next/no-img-element
     <img
       src={`https://i.ytimg.com/vi/${videoId}/${QUALITIES[quality]}.jpg`}
       alt=""

@@ -72,6 +72,25 @@ export async function cacheLocalFile(id: string, file: File): Promise<void> {
   }
 }
 
+/**
+ * Cheap existence check — the Saved Loops shelf lists a local entry only if
+ * its file is still cached, without pulling the blob into memory.
+ */
+export async function hasCachedFile(id: string): Promise<boolean> {
+  const db = await openDb();
+  if (!db) return false;
+  try {
+    return await new Promise<boolean>((resolve) => {
+      const tx = db.transaction(STORE_NAME, "readonly");
+      const request = tx.objectStore(STORE_NAME).getKey(id);
+      request.onsuccess = () => resolve(request.result != null);
+      request.onerror = () => resolve(false);
+    });
+  } finally {
+    db.close();
+  }
+}
+
 /** Load a previously cached file by id, or null. */
 export async function loadCachedFile(id: string): Promise<File | null> {
   const db = await openDb();

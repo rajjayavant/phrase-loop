@@ -60,4 +60,11 @@ export interface PlayerAdapter {
   isReady(): boolean;
   getStatus(): PlayerStatus;
   destroy(): void;
+
+  /**
+   * Human-readable title of the loaded media, when the provider knows one
+   * (YouTube's video title, a local file's name). Optional: consumers must
+   * tolerate absence — used to label saved loops, never for playback.
+   */
+  getMediaTitle?(): string | null;
 }

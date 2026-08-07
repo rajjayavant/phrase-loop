@@ -233,6 +233,17 @@ export class YouTubePlayerAdapter implements PlayerAdapter {
     return this.player?.isMuted() ?? false;
   }
 
+  getMediaTitle(): string | null {
+    // getVideoData is real but absent from @types/youtube, hence the cast.
+    const data = (
+      this.player as unknown as {
+        getVideoData?: () => { title?: string } | undefined;
+      } | null
+    )?.getVideoData?.();
+    const title = data?.title?.trim();
+    return title ? title : null;
+  }
+
   isReady(): boolean {
     return this.ready && !this.destroyed;
   }
