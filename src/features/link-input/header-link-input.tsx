@@ -6,6 +6,7 @@ import { CornerDownLeft, Link2, X } from "lucide-react";
 import { TextField } from "@/components/ui";
 import { parseYouTubeUrl } from "@/lib/youtube/parse-url";
 import { usePlayerStore } from "@/features/player/stores/player-store";
+import { trackEvent } from "@/features/session/analytics";
 import { hintLoadMethod } from "@/features/session/load-method";
 import { cn } from "@/lib/utilities/cn";
 
@@ -24,6 +25,9 @@ export function HeaderLinkInput() {
   const submit = (event: React.FormEvent) => {
     event.preventDefault();
     const parsed = parseYouTubeUrl(value.trim());
+    // `valid: false` counts the pastes that go nowhere — if that number is
+    // high, the input needs to accept more link shapes or explain itself.
+    trackEvent({ name: "link_pasted", valid: parsed != null });
     if (!parsed) {
       setError(true);
       inputRef.current?.focus();

@@ -21,6 +21,9 @@ export type MediaLoadMethod =
   | "recent_loop";
 
 export type ProductEvent =
+  // --- acquisition attempts (before any media exists) ---
+  | { name: "upload_clicked" }
+  | { name: "link_pasted"; valid: boolean }
   // --- media ---
   | {
       name: "media_loaded";

@@ -4,6 +4,7 @@ import * as React from "react";
 import { Upload } from "lucide-react";
 import { Button } from "@/components/ui";
 import { ACCEPTED_MEDIA } from "@/features/player/stores/local-source";
+import { trackEvent } from "@/features/session/analytics";
 import { useOpenLocalFile } from "./use-open-local-file";
 import { cn } from "@/lib/utilities/cn";
 
@@ -45,7 +46,12 @@ export function FilePickerButton({
         variant={variant}
         size={size}
         className={cn("gap-1.5", className)}
-        onClick={() => inputRef.current?.click()}
+        onClick={() => {
+          // Intent, not outcome: fires whether or not a file is then chosen.
+          // `media_loaded` (method: upload) is the success counterpart.
+          trackEvent({ name: "upload_clicked" });
+          inputRef.current?.click();
+        }}
       >
         <Upload className="h-4 w-4" />
         {compact ? (

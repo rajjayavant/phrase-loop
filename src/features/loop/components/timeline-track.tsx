@@ -3,6 +3,7 @@
 import * as React from "react";
 import { subscribeToPlayhead } from "@/features/player/hooks/use-playhead";
 import { usePlayerStore } from "@/features/player/stores/player-store";
+import { trackEvent } from "@/features/session/analytics";
 import { useTimelineDrag, type DragTarget } from "../hooks/use-timeline-drag";
 import { clamp } from "@/lib/utilities/clamp";
 import { formatClock } from "@/lib/formatting/timestamp";
@@ -67,6 +68,11 @@ export function TimelineTrack({
     [windowStart, windowSpan],
   );
 
+  // For analytics: the previous drag target, so releasing a marker drag can
+  // be told apart from releasing a playhead scrub. State alone loses the
+  // "what was being dragged" by the time the release arrives.
+  const lastDragTargetRef = React.useRef<DragTarget>(null);
+
   const {
     handlePointerDown,
     handlePointerMove,
@@ -79,7 +85,19 @@ export function TimelineTrack({
       setActiveMarker(marker);
       moveMarker(marker, seconds);
     },
-    onDragStateChange: setDragTarget,
+    onDragStateChange: (target) => {
+      const previous = lastDragTargetRef.current;
+      lastDragTargetRef.current = target;
+      // Releasing a dragged marker is placing it — the drag counterpart of
+      // pressing A/B, fired once per drag rather than per movement.
+      if (target === null && (previous === "markerA" || previous === "markerB")) {
+        trackEvent({
+          name: "marker_set",
+          marker: previous === "markerA" ? "A" : "B",
+        });
+      }
+      setDragTarget(target);
+    },
   });
 
   React.useEffect(() => {
