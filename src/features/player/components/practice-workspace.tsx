@@ -27,6 +27,7 @@ import {
   localLoopKey,
   youtubeLoopKey,
 } from "@/features/saved-loops/saved-loops-storage";
+import { hintLoadMethodIfUnset } from "@/features/session/load-method";
 import { useSessionSync } from "@/features/session/use-session-sync";
 import { useUrlSync } from "@/features/session/use-url-sync";
 import {
@@ -179,6 +180,10 @@ function SourceWorkspace({
     store.resetForNewSource();
 
     if (initialA != null || initialB != null) {
+      // Markers in the URL and no stronger hint pending: someone opened a
+      // shared link. (A recent-loop tile also produces marker params, but
+      // its click handler has already hinted `recent_loop`.)
+      hintLoadMethodIfUnset("shared_link");
       store.hydrate({
         markerA: initialA,
         markerB: initialB,

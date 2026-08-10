@@ -176,9 +176,20 @@ export default function PrivacyPage() {
         the pages you view. Google processes this on our behalf.
       </p>
       <p>
-        We do not send Google anything you type into the app. Video links,
-        marker positions, playback speeds, and uploaded files are not part of
-        what analytics collects.
+        We also send Google anonymous product events describing how the tool
+        is used: that a video loaded and how it was opened, play and pause,
+        markers being set, a loop being turned on and its length, playback
+        speed changes, and for YouTube videos the public video id. We do not
+        send anything you type into the app, your local files, their names, or
+        their contents. None of it is tied to an account, because there are no
+        accounts.
+      </p>
+      <p>
+        We use Microsoft Clarity to understand how the interface is used, in
+        the form of heatmaps and replays of interactions such as clicks and
+        scrolling. It sets cookies and sends Microsoft your device and browser
+        details alongside those interactions; Microsoft processes this on our
+        behalf.
       </p>
       <p>
         You can opt out with Google&rsquo;s{" "}
@@ -189,8 +200,8 @@ export default function PrivacyPage() {
         >
           browser add-on
         </a>
-        , or by blocking analytics cookies in your browser or an extension. The
-        app works exactly the same either way.
+        , or by blocking analytics cookies in your browser or an extension —
+        this covers Clarity too. The app works exactly the same either way.
       </p>
 
       <h2>Children</h2>

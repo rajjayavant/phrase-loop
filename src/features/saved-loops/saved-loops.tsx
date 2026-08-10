@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { Music, Repeat, X } from "lucide-react";
 import { usePlayerStore } from "@/features/player/stores/player-store";
 import { hasCachedFile } from "@/features/player/stores/local-source";
+import { trackEvent } from "@/features/session/analytics";
+import { hintLoadMethod } from "@/features/session/load-method";
 import { formatTimestamp } from "@/lib/formatting/timestamp";
 import { formatRate } from "@/features/player/stores/speed-state";
 import { cn } from "@/lib/utilities/cn";
@@ -79,6 +81,8 @@ export function SavedLoops({ currentKey = null }: SavedLoopsProps) {
                   // Opening a saved loop is unambiguous play intent, exactly
                   // like pasting a link — no second facade gate.
                   activate();
+                  trackEvent({ name: "recent_loop_opened", kind: entry.kind });
+                  hintLoadMethod("recent_loop");
                   router.push(hrefFor(entry));
                 }}
                 className={cn(
@@ -102,6 +106,7 @@ export function SavedLoops({ currentKey = null }: SavedLoopsProps) {
                 aria-label={`Remove ${entry.title ?? fallbackTitle(entry)} from recently looped`}
                 onClick={() => {
                   removeSavedLoop(entry.key);
+                  trackEvent({ name: "recent_loop_removed", kind: entry.kind });
                   setEntries((prev) =>
                     prev ? prev.filter((e) => e.key !== entry.key) : prev,
                   );

@@ -7,6 +7,7 @@ import {
   isMediaFile,
   useLocalSourceStore,
 } from "@/features/player/stores/local-source";
+import { hintLoadMethod } from "@/features/session/load-method";
 
 /**
  * The one way a local file enters the app: validate, register with the local
@@ -28,6 +29,7 @@ export function useOpenLocalFile() {
         return false;
       }
       const id = setFile(file);
+      hintLoadMethod("upload");
       router.push(`/?src=local:${id}`);
       return true;
     },

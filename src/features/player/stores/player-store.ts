@@ -199,6 +199,14 @@ let seekToMarkerAOnReady = false;
  */
 let playOnActivate = false;
 
+/**
+ * Analytics-only view of playback, per source. `logicallyPlaying` treats
+ * buffering as a continuation of whatever came before it; `hasPlayedThisSource`
+ * marks `media_played`'s first_play. Module-level: nothing re-renders on them.
+ */
+let logicallyPlaying = false;
+let hasPlayedThisSource = false;
+
 export const usePlayerStore = create<PlayerStoreState>((set, get) => ({
   adapter: null,
   videoId: null,
@@ -235,6 +243,8 @@ export const usePlayerStore = create<PlayerStoreState>((set, get) => ({
   resetForNewSource: () => {
     pendingWholeClipLoop = false;
     seekToMarkerAOnReady = false;
+    logicallyPlaying = false;
+    hasPlayedThisSource = false;
     set({
       duration: 0,
       error: null,
@@ -245,15 +255,44 @@ export const usePlayerStore = create<PlayerStoreState>((set, get) => ({
     });
   },
 
-  setStatus: (status) =>
+  setStatus: (status) => {
+    // Play/pause analytics from status *transitions*, so plays started from
+    // the YouTube iframe's own controls count exactly like ours. "Logically
+    // playing" ignores buffering: a loop wrap or a seek passes through
+    // buffering mid-playback and must not read as a fresh play.
+    if (status === "playing" && !logicallyPlaying) {
+      logicallyPlaying = true;
+      trackEvent({ name: "media_played", first_play: !hasPlayedThisSource });
+      hasPlayedThisSource = true;
+    } else if (status === "paused" && logicallyPlaying) {
+      logicallyPlaying = false;
+      trackEvent({ name: "media_paused" });
+    } else if (
+      status === "idle" ||
+      status === "ready" ||
+      status === "ended" ||
+      status === "error"
+    ) {
+      // Not a user pause — just leave the logical-playing state.
+      logicallyPlaying = false;
+    }
     set((state) =>
       // Playback has genuinely begun — the starting hold is over.
       status === "playing" && state.starting
         ? { status, starting: false }
         : { status },
-    ),
-  setError: (error) =>
-    set({ error, starting: false, status: error ? "error" : get().status }),
+    );
+  },
+  setError: (error) => {
+    if (error) {
+      trackEvent({
+        name: "media_failed",
+        kind: error.kind,
+        video_id: get().videoId ?? undefined,
+      });
+    }
+    set({ error, starting: false, status: error ? "error" : get().status });
+  },
   setDuration: (duration) => {
     set({ duration });
     // Complete a pending whole-clip loop now that we know the end.
@@ -460,11 +499,18 @@ export const usePlayerStore = create<PlayerStoreState>((set, get) => ({
     } else {
       announce(next.enabled ? "Loop enabled" : "Loop disabled");
     }
-    if (next.enabled && next.markerA != null && next.markerB != null) {
+    if (
+      next.enabled &&
+      !loop.enabled &&
+      next.markerA != null &&
+      next.markerB != null
+    ) {
       trackEvent({
-        name: "loop_enabled",
-        loopLength: next.markerB - next.markerA,
+        name: "loop_turned_on",
+        loop_length: next.markerB - next.markerA,
       });
+    } else if (!next.enabled && loop.enabled) {
+      trackEvent({ name: "loop_turned_off" });
     }
     set(applyLoop(next));
   },

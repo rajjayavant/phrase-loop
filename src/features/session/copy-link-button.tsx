@@ -45,7 +45,12 @@ export function CopyLinkButton({ trigger }: { trigger: React.ReactElement }) {
       }
       toast.success("Practice link copied", "Paste it anywhere to share.");
       announce("Practice link copied to clipboard");
-      trackEvent({ name: "practice_link_copied" });
+      const { loop } = usePlayerStore.getState();
+      trackEvent({
+        name: "share_link_copied",
+        has_loop:
+          loop.enabled && loop.markerA != null && loop.markerB != null,
+      });
     } catch {
       toast.show({
         title: "Couldn't copy automatically",

@@ -7,6 +7,8 @@ import { MockPlayerAdapter } from "../adapters/mock-adapter";
 import { LocalFilePlayerAdapter } from "../adapters/local-file-adapter";
 import type { PlayerAdapter, PlayerAdapterEvents } from "../types/player-adapter";
 import { trackEvent } from "@/features/session/analytics";
+import { consumeLoadMethod } from "@/features/session/load-method";
+import { isAudioFile } from "../adapters/local-file-adapter";
 
 export type AdapterKind = "youtube" | "mock" | "local";
 
@@ -65,7 +67,19 @@ export function usePlayerMount({
       onReady: () => {
         if (cancelled) return;
         usePlayerStore.getState().onPlayerReady();
-        trackEvent({ name: "video_loaded", videoId });
+        if (kind !== "mock") {
+          trackEvent({
+            name: "media_loaded",
+            source:
+              kind === "youtube"
+                ? "youtube"
+                : file && isAudioFile(file)
+                  ? "local_audio"
+                  : "local_video",
+            method: consumeLoadMethod(),
+            video_id: kind === "youtube" ? videoId : undefined,
+          });
+        }
       },
       onError: (error) => {
         if (!cancelled) usePlayerStore.getState().setError(error);

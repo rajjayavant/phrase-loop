@@ -6,6 +6,7 @@ import { CornerDownLeft, Link2, X } from "lucide-react";
 import { TextField } from "@/components/ui";
 import { parseYouTubeUrl } from "@/lib/youtube/parse-url";
 import { usePlayerStore } from "@/features/player/stores/player-store";
+import { hintLoadMethod } from "@/features/session/load-method";
 import { cn } from "@/lib/utilities/cn";
 
 /**
@@ -33,6 +34,7 @@ export function HeaderLinkInput() {
     // pasted video loads its player immediately rather than showing another
     // "click to begin" gate.
     usePlayerStore.getState().activate();
+    hintLoadMethod("link_paste");
     const params = new URLSearchParams({ v: parsed.videoId });
     if (parsed.startTime != null) {
       params.set("a", String(Math.round(parsed.startTime * 1000) / 1000));

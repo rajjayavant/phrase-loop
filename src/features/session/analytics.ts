@@ -1,29 +1,77 @@
 /**
- * Typed internal analytics interface.
+ * Typed product analytics.
  *
- * No third-party service is wired up. Events are logged in development only.
- * The event shapes are designed so we can later measure the funnel described
- * in the product spec (visitors → loaded video → created loop → shared link)
- * without collecting personal information.
+ * Every event name reads as a literal description of the user action that
+ * fired it; "which control" is always a property, never a new event. Server
+ * components never track — all call sites are client code, and page views
+ * come from GA4 itself.
+ *
+ * In production the default sink forwards to GA4 via the gtag queue (see
+ * `AnalyticsScripts`; the queue works even before gtag.js has loaded, so the
+ * lazy script strategy loses nothing). In development events go to the
+ * console instead of polluting production stats.
  */
 
+export type MediaSource = "youtube" | "local_video" | "local_audio";
+export type MediaLoadMethod =
+  | "default"
+  | "link_paste"
+  | "upload"
+  | "shared_link"
+  | "recent_loop";
+
 export type ProductEvent =
-  | { name: "video_loaded"; videoId: string }
+  // --- media ---
+  | {
+      name: "media_loaded";
+      source: MediaSource;
+      method: MediaLoadMethod;
+      video_id?: string;
+    }
+  | { name: "media_played"; first_play: boolean }
+  | { name: "media_paused" }
+  | { name: "media_failed"; kind: string; video_id?: string }
+  // --- practice ---
   | { name: "marker_set"; marker: "A" | "B" }
-  | { name: "loop_enabled"; loopLength: number }
+  | { name: "loop_turned_on"; loop_length: number }
+  | { name: "loop_turned_off" }
   | { name: "speed_changed"; requested: number; applied: number }
-  | { name: "practice_link_copied" }
-  | { name: "session_restored"; videoId: string };
+  // --- recently looped ---
+  | { name: "recent_loop_opened"; kind: "youtube" | "local" }
+  | { name: "recent_loop_removed"; kind: "youtube" | "local" }
+  // --- sharing ---
+  | { name: "share_link_copied"; has_loop: boolean };
 
 type EventSink = (event: ProductEvent) => void;
 
-let sink: EventSink = (event) => {
-  if (process.env.NODE_ENV === "development") {
-    console.debug("[analytics]", event.name, event);
+declare global {
+  interface Window {
+    dataLayer?: unknown[];
+    gtag?: (...args: unknown[]) => void;
   }
+}
+
+let sink: EventSink = (event) => {
+  if (process.env.NODE_ENV !== "production") {
+    console.debug("[analytics]", event.name, event);
+    return;
+  }
+  if (typeof window === "undefined") return;
+  const { name, ...params } = event;
+  // Same queueing shim as Google's own snippet: pushes land in dataLayer and
+  // are flushed when (or if) gtag.js finishes loading.
+  window.dataLayer = window.dataLayer || [];
+  window.gtag =
+    window.gtag ||
+    function gtag() {
+      // gtag.js requires the Arguments object itself; an array is ignored.
+      // eslint-disable-next-line prefer-rest-params
+      window.dataLayer?.push(arguments);
+    };
+  window.gtag("event", name, params);
 };
 
-/** Swap the sink (e.g. to a real provider) later without touching call sites. */
+/** Swap the sink (e.g. for tests) without touching call sites. */
 export function setAnalyticsSink(next: EventSink): void {
   sink = next;
 }
