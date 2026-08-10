@@ -20,6 +20,7 @@ import { PracticeHeader } from "./practice-header";
 import { toast } from "@/components/ui";
 import { FileDropZone } from "@/features/link-input/file-drop-zone";
 import { SiteFooter } from "@/components/site-footer";
+import { AdBanner } from "@/features/ads/ad-banner";
 import { useKeyboardShortcuts } from "@/features/shortcuts/use-keyboard-shortcuts";
 import { SavedLoops } from "@/features/saved-loops/saved-loops";
 import { useSavedLoopRecorder } from "@/features/saved-loops/use-saved-loop-recorder";
@@ -285,6 +286,10 @@ function SourceWorkspace({
                 : null
           }
         />
+
+        {/* Home page banner 1. After the shelf: below every practice control,
+            so it can never sit between the user and the instrument. */}
+        <AdBanner slot="6906719460" />
       </main>
 
       {/* Mobile transport dock */}
