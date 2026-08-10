@@ -24,6 +24,13 @@ export interface PracticeSession {
   muted: boolean;
   nudgePrecision: NudgePrecision;
   timelineMode: TimelineMode;
+  /**
+   * Media duration in seconds; 0 when it never became known. Persisted so a
+   * restored session can draw the timeline scale — and place its markers —
+   * BEFORE the player loads. Since the facade, the player only loads on the
+   * first play gesture, so without this the pre-play timeline has no scale.
+   */
+  duration: number;
   /** Epoch ms of the last update — used to order/restore the most recent. */
   updatedAt: number;
 }
@@ -44,6 +51,9 @@ const sessionSchema = z.object({
   muted: z.boolean(),
   nudgePrecision: z.union([z.literal(0.01), z.literal(0.1), z.literal(1)]),
   timelineMode: z.union([z.literal("full"), z.literal("precision")]),
+  // Optional with a default so sessions saved before this field existed still
+  // parse (same schema version); they self-heal on their next save.
+  duration: z.number().nonnegative().optional().default(0),
   updatedAt: z.number(),
 });
 

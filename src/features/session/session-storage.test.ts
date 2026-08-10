@@ -23,6 +23,7 @@ function makeSession(
     muted: false,
     nudgePrecision: 0.1,
     timelineMode: "full",
+    duration: 180,
     updatedAt: 1_700_000_000_000,
     ...overrides,
   };
@@ -50,6 +51,18 @@ describe("session storage", () => {
   it("ignores corrupt payloads", () => {
     localStorage.setItem(`looper:session:${ID}`, "{not json");
     expect(loadSession(ID)).toBeNull();
+  });
+
+  it("parses a session saved before the duration field existed", () => {
+    const { duration: _duration, ...legacy } = makeSession();
+    localStorage.setItem(
+      `looper:session:${ID}`,
+      JSON.stringify({ version: 1, ...legacy }),
+    );
+    const restored = loadSession(ID);
+    expect(restored).not.toBeNull();
+    expect(restored?.duration).toBe(0);
+    expect(restored?.markerA).toBe(12);
   });
 
   it("ignores payloads failing schema validation", () => {

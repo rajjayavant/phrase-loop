@@ -21,6 +21,7 @@ export function useSessionSync(videoId: string | null) {
   const muted = usePlayerStore((s) => s.muted);
   const nudgePrecision = usePlayerStore((s) => s.nudgePrecision);
   const timelineMode = usePlayerStore((s) => s.timelineMode);
+  const duration = usePlayerStore((s) => s.duration);
 
   React.useEffect(() => {
     if (!videoId) return;
@@ -36,6 +37,7 @@ export function useSessionSync(videoId: string | null) {
         muted,
         nudgePrecision,
         timelineMode,
+        duration,
         updatedAt: Date.now(),
       });
     }, 500);
@@ -51,5 +53,6 @@ export function useSessionSync(videoId: string | null) {
     muted,
     nudgePrecision,
     timelineMode,
+    duration,
   ]);
 }

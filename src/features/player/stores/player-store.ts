@@ -81,6 +81,13 @@ export interface PlayerStoreState {
   status: PlayerStatus;
   error: PlayerError | null;
   duration: number;
+  /**
+   * A whole-clip default loop is armed but waiting for the duration to place
+   * marker B. In state (not a module flag) because the timeline renders the
+   * pending B at the end of the track: "end of clip" is 100% on any scale,
+   * so the default loop is visible before the player has ever loaded.
+   */
+  wholeClipPending: boolean;
   loop: LoopState;
   speed: PlaybackSpeedState;
   volume: number;
@@ -172,18 +179,18 @@ export interface HydrateInput {
   muted: boolean;
   nudgePrecision: NudgePrecision;
   timelineMode: TimelineMode;
+  /**
+   * Last known media duration, from the saved session. Seeds the timeline
+   * scale so restored markers render in the right place BEFORE the player
+   * loads (the facade defers loading until the first play gesture). The
+   * player's real duration overwrites it on ready.
+   */
+  duration: number;
 }
 
 function applyLoop(loop: LoopState): Partial<PlayerStoreState> {
   return { loop };
 }
-
-/**
- * Module-level flag for the pending whole-clip loop. Kept out of the reactive
- * store state because nothing needs to re-render on it; `setDuration` reads and
- * clears it when the duration first arrives.
- */
-let pendingWholeClipLoop = false;
 
 /**
  * When markers arrive from a shared link or a saved session, park the playhead
@@ -212,6 +219,7 @@ export const usePlayerStore = create<PlayerStoreState>((set, get) => ({
   videoId: null,
   activation: "pending",
   starting: false,
+  wholeClipPending: false,
   status: "idle",
   error: null,
   duration: 0,
@@ -233,7 +241,7 @@ export const usePlayerStore = create<PlayerStoreState>((set, get) => ({
     set({ adapter, videoId, error: null, status: "loading" }),
 
   detachAdapter: () => {
-    // NB: do not clear pendingWholeClipLoop / seekToMarkerAOnReady here — a new
+    // NB: do not clear wholeClipPending / seekToMarkerAOnReady here — a new
     // source's seed (in a layout effect) may run before the old adapter's
     // cleanup, and clearing them would drop the new source's armed defaults.
     // `resetForNewSource` owns clearing them.
@@ -241,7 +249,6 @@ export const usePlayerStore = create<PlayerStoreState>((set, get) => ({
   },
 
   resetForNewSource: () => {
-    pendingWholeClipLoop = false;
     seekToMarkerAOnReady = false;
     logicallyPlaying = false;
     hasPlayedThisSource = false;
@@ -249,6 +256,7 @@ export const usePlayerStore = create<PlayerStoreState>((set, get) => ({
       duration: 0,
       error: null,
       status: "idle",
+      wholeClipPending: false,
       loop: initialLoopState,
       speed: initialSpeedState,
       activeMarker: "A",
@@ -296,9 +304,9 @@ export const usePlayerStore = create<PlayerStoreState>((set, get) => ({
   setDuration: (duration) => {
     set({ duration });
     // Complete a pending whole-clip loop now that we know the end.
-    if (pendingWholeClipLoop && duration > 0) {
-      pendingWholeClipLoop = false;
+    if (get().wholeClipPending && duration > 0) {
       set({
+        wholeClipPending: false,
         loop: {
           markerA: 0,
           markerB: duration,
@@ -310,14 +318,11 @@ export const usePlayerStore = create<PlayerStoreState>((set, get) => ({
   },
 
   requestWholeClipLoop: () => {
-    pendingWholeClipLoop = true;
     const { duration } = get();
-    // Place A at the start right away for immediate visual feedback.
-    set({ loop: { ...get().loop, markerA: 0 } });
     // If the duration is already known, complete immediately.
     if (duration > 0) {
-      pendingWholeClipLoop = false;
       set({
+        wholeClipPending: false,
         loop: {
           markerA: 0,
           markerB: duration,
@@ -325,7 +330,15 @@ export const usePlayerStore = create<PlayerStoreState>((set, get) => ({
           iterationCount: 0,
         },
       });
+      return;
     }
+    // Otherwise arm it: A at the start right away for immediate visual
+    // feedback, and the pending flag lets the timeline draw B at the end of
+    // the track before the duration exists.
+    set({
+      wholeClipPending: true,
+      loop: { ...get().loop, markerA: 0 },
+    });
   },
 
   onPlayerReady: () => {
@@ -611,6 +624,12 @@ export const usePlayerStore = create<PlayerStoreState>((set, get) => ({
         muted: partial.muted ?? state.muted,
         nudgePrecision: partial.nudgePrecision ?? state.nudgePrecision,
         timelineMode: partial.timelineMode ?? state.timelineMode,
+        // Only a real remembered duration may seed the scale; never clobber
+        // a live duration with a session's 0.
+        duration:
+          partial.duration != null && partial.duration > 0 && state.duration <= 0
+            ? partial.duration
+            : state.duration,
       };
     });
   },

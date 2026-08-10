@@ -44,6 +44,7 @@ export function TimelineTrack({
   const [dragTarget, setDragTarget] = React.useState<DragTarget>(null);
 
   const duration = usePlayerStore((s) => s.duration);
+  const wholeClipPending = usePlayerStore((s) => s.wholeClipPending);
   const markerA = usePlayerStore((s) => s.loop.markerA);
   const markerB = usePlayerStore((s) => s.loop.markerB);
   const loopEnabled = usePlayerStore((s) => s.loop.enabled);
@@ -82,6 +83,11 @@ export function TimelineTrack({
     clientXToTime,
     onSeek: seekTo,
     onMoveMarker: (marker, seconds) => {
+      // No scale, no drag: with the duration unknown (pre-play facade) every
+      // track position maps to ~0s, so a drag would corrupt the marker
+      // rather than move it. The chips are display-only until the scale
+      // exists.
+      if (usePlayerStore.getState().duration <= 0) return;
       setActiveMarker(marker);
       moveMarker(marker, seconds);
     },
@@ -112,8 +118,29 @@ export function TimelineTrack({
     return subscribeToPlayhead(update);
   }, [timeToPercent, windowStart, windowEnd]);
 
-  const aPercent = markerA != null ? timeToPercent(markerA) : null;
-  const bPercent = markerB != null ? timeToPercent(markerB) : null;
+  // Markers need a scale to be drawn on, and before the player has loaded
+  // (the facade defers it) the duration may be unknown. Three cases keep the
+  // pre-play timeline looking exactly as it did when the player loaded
+  // eagerly:
+  //   - Restored sessions remember the duration, so their markers place
+  //     normally on the remembered scale.
+  //   - A pending whole-clip default has no B *time* yet, but its meaning is
+  //     "end of clip" — which is 100% on any scale — so B renders at the end
+  //     of the track. A marker at exactly 0 likewise needs no scale.
+  //   - Only a positive-time marker with NO scale at all (a shared link on
+  //     its first visit) hides until the duration arrives; drawing it would
+  //     clamp every chip into an invisible stack at the right edge.
+  const scaleReady = duration > 0;
+  const aPercent =
+    markerA != null && (scaleReady || markerA === 0)
+      ? timeToPercent(markerA)
+      : null;
+  const bPercent =
+    markerB != null && (scaleReady || markerB === 0)
+      ? timeToPercent(markerB)
+      : wholeClipPending
+        ? 100
+        : null;
   const showLoopRegion = aPercent != null && bPercent != null;
 
   const handleHover = (event: React.PointerEvent) => {

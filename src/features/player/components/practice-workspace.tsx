@@ -210,6 +210,9 @@ function SourceWorkspace({
         muted: saved.muted,
         nudgePrecision: saved.nudgePrecision,
         timelineMode: saved.timelineMode,
+        // Remembered duration seeds the timeline scale so the restored
+        // markers are visible in the right place before the player loads.
+        duration: saved.duration,
       });
       announce("Your previous practice settings were restored");
       return;
