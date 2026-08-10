@@ -91,6 +91,12 @@ export function saveSession(session: PracticeSession): void {
     version: SCHEMA_VERSION,
     ...session,
   };
+  // Never erase a known duration with an unknown one. Saves happen while the
+  // facade idles (player unloaded, store duration 0), and pre-play marker
+  // rendering depends on the remembered duration surviving those saves.
+  if (payload.duration <= 0) {
+    payload.duration = loadSession(session.videoId)?.duration ?? 0;
+  }
 
   try {
     window.localStorage.setItem(

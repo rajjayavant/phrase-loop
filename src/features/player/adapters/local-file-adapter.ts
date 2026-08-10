@@ -43,6 +43,8 @@ export class LocalFilePlayerAdapter implements PlayerAdapter {
   private status: PlayerStatus = "idle";
   private destroyed = false;
   private pendingStart = 0;
+  /** One silent decode-error recovery per incident; see the error handler. */
+  private recoveryAttempted = false;
   private readonly container: HTMLElement;
   private readonly events: PlayerAdapterEvents;
   private readonly file: File;
@@ -110,7 +112,12 @@ export class LocalFilePlayerAdapter implements PlayerAdapter {
       }
     });
     media.addEventListener("play", () => this.setStatus("playing"));
-    media.addEventListener("playing", () => this.setStatus("playing"));
+    media.addEventListener("playing", () => {
+      this.setStatus("playing");
+      // Stable playback again: re-arm the one-shot decode recovery so a
+      // later failure in a different region gets its own retry.
+      this.recoveryAttempted = false;
+    });
     media.addEventListener("pause", () => {
       if (!this.destroyed && !media.ended) this.setStatus("paused");
     });
@@ -121,6 +128,44 @@ export class LocalFilePlayerAdapter implements PlayerAdapter {
     });
     media.addEventListener("error", () => {
       if (this.destroyed) return;
+      // Decode errors on a file that was already playing are usually
+      // transient: hardware-decoder session pressure, or a mid-file seek
+      // landing on open-GOP HEVC frames (iPhone recordings) whose references
+      // the demuxer dropped. Reloading the element and re-seeking recovers
+      // these, so spend one silent retry before surfacing the error overlay.
+      // Genuine unsupported formats fail before `ready` (or with
+      // SRC_NOT_SUPPORTED) and still error out immediately.
+      if (
+        !this.recoveryAttempted &&
+        this.ready &&
+        media.error?.code === MediaError.MEDIA_ERR_DECODE
+      ) {
+        this.recoveryAttempted = true;
+        const resumeAt = media.currentTime;
+        const wasPlaying =
+          this.status === "playing" || this.status === "buffering";
+        this.setStatus("buffering");
+        media.load();
+        media.addEventListener(
+          "loadedmetadata",
+          () => {
+            if (this.destroyed) return;
+            // Land slightly before the failed target — re-seeking the exact
+            // failing timestamp can reproduce the same decoder state.
+            const target = Math.max(0, resumeAt - 0.1);
+            try {
+              media.currentTime = Number.isFinite(media.duration)
+                ? Math.min(target, media.duration)
+                : target;
+            } catch {
+              // A second failure surfaces through the error path below.
+            }
+            if (wasPlaying) void media.play().catch(() => undefined);
+          },
+          { once: true },
+        );
+        return;
+      }
       this.setStatus("error");
       this.events.onError?.({
         kind: "html5-error",
@@ -151,11 +196,23 @@ export class LocalFilePlayerAdapter implements PlayerAdapter {
 
   seekTo(seconds: number): void {
     if (!this.media) return;
-    const duration = this.media.duration;
-    const clamped = Number.isFinite(duration)
-      ? Math.min(Math.max(0, seconds), duration)
+    // Clamp to the seekable range, not just the reported duration: for some
+    // QuickTime files the demuxer's seekable end sits slightly short of
+    // `duration`, and seeking into that gap is a decode-error trigger.
+    let max = Number.isFinite(this.media.duration)
+      ? this.media.duration
+      : Infinity;
+    try {
+      const seekable = this.media.seekable;
+      if (seekable.length > 0) {
+        max = Math.min(max, seekable.end(seekable.length - 1));
+      }
+    } catch {
+      // An empty/detached range throws; the duration clamp still applies.
+    }
+    this.media.currentTime = Number.isFinite(max)
+      ? Math.min(Math.max(0, seconds), max)
       : Math.max(0, seconds);
-    this.media.currentTime = clamped;
   }
 
   getCurrentTime(): number {

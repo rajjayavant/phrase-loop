@@ -53,6 +53,15 @@ describe("session storage", () => {
     expect(loadSession(ID)).toBeNull();
   });
 
+  it("a save without a duration keeps the previously stored one", () => {
+    saveSession(makeSession({ duration: 180 }));
+    // A pre-play save (facade idle, player unloaded) carries duration 0.
+    saveSession(makeSession({ duration: 0, markerA: 30 }));
+    const restored = loadSession(ID);
+    expect(restored?.duration).toBe(180);
+    expect(restored?.markerA).toBe(30);
+  });
+
   it("parses a session saved before the duration field existed", () => {
     const { duration: _duration, ...legacy } = makeSession();
     localStorage.setItem(

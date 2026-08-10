@@ -25,6 +25,7 @@ import { useKeyboardShortcuts } from "@/features/shortcuts/use-keyboard-shortcut
 import { SavedLoops } from "@/features/saved-loops/saved-loops";
 import { useSavedLoopRecorder } from "@/features/saved-loops/use-saved-loop-recorder";
 import {
+  listSavedLoops,
   localLoopKey,
   youtubeLoopKey,
 } from "@/features/saved-loops/saved-loops-storage";
@@ -180,6 +181,30 @@ function SourceWorkspace({
     const store = usePlayerStore.getState();
     store.resetForNewSource();
 
+    const saved = source === "local" ? null : loadSession(videoId ?? "");
+
+    // The last known duration for this media, from the session or the
+    // Recently looped shelf. It seeds the timeline scale so markers are
+    // visible in the right place BEFORE the player loads (the facade defers
+    // loading until the first play gesture). Needed by BOTH branches below:
+    // the URL sync mirrors markers into the address bar, so even a plain
+    // reload of a practiced video arrives through the URL-markers branch.
+    const rememberedDuration = (() => {
+      if (saved && saved.duration > 0) return saved.duration;
+      const key =
+        source === "local"
+          ? file
+            ? localLoopKey(file)
+            : null
+          : videoId
+            ? youtubeLoopKey(videoId)
+            : null;
+      const entry = key
+        ? listSavedLoops().find((e) => e.key === key)
+        : undefined;
+      return entry && entry.duration > 0 ? entry.duration : 0;
+    })();
+
     if (initialA != null || initialB != null) {
       // Markers in the URL and no stronger hint pending: someone opened a
       // shared link. (A recent-loop tile also produces marker params, but
@@ -190,11 +215,11 @@ function SourceWorkspace({
         markerB: initialB,
         loopEnabled: initialLoop ?? true,
         requestedSpeed: initialSpeed ?? 1,
+        duration: rememberedDuration,
       });
       return;
     }
 
-    const saved = source === "local" ? null : loadSession(videoId ?? "");
     if (
       saved &&
       (saved.markerA != null ||
@@ -210,11 +235,20 @@ function SourceWorkspace({
         muted: saved.muted,
         nudgePrecision: saved.nudgePrecision,
         timelineMode: saved.timelineMode,
-        // Remembered duration seeds the timeline scale so the restored
-        // markers are visible in the right place before the player loads.
-        duration: saved.duration,
+        duration: rememberedDuration,
       });
       announce("Your previous practice settings were restored");
+      // A session can exist without a loop — saved for its speed/volume, or
+      // saved while the facade idled before the video ever loaded. Restoring
+      // it must not cost the whole-clip default: without this, such a
+      // session permanently suppresses marker B (a lone custom A marker is
+      // the one shape that is deliberately kept as-is).
+      if (
+        saved.markerB == null &&
+        (saved.markerA == null || saved.markerA === 0)
+      ) {
+        store.requestWholeClipLoop();
+      }
       return;
     }
 
@@ -222,7 +256,16 @@ function SourceWorkspace({
       store.hydrate({ requestedSpeed: initialSpeed });
     }
     store.requestWholeClipLoop();
-  }, [sourceKey, source, videoId, initialA, initialB, initialSpeed, initialLoop]);
+  }, [
+    sourceKey,
+    source,
+    videoId,
+    file,
+    initialA,
+    initialB,
+    initialSpeed,
+    initialLoop,
+  ]);
 
   // Remember the most recently used YouTube video so a bare visit to "/"
   // reopens it. (Local files aren't remembered this way — they live in cache.)
