@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import Script from "next/script";
 
 /** AdSense publisher id — must match public/ads.txt. */
 const AD_CLIENT = "ca-pub-2835923206229583";
@@ -20,6 +19,14 @@ interface AdBannerProps {
 /**
  * A responsive AdSense display unit — the ad and nothing else: no heading,
  * no placeholder, and outside production it renders nothing at all.
+ *
+ * **Only render this on pages that are original publisher content**, which in
+ * practice means the guides. AdSense rejected the site for "low value content"
+ * in August 2026 while the only unit on the site sat on the practice screen,
+ * whose main content is an embedded YouTube video belonging to someone else.
+ * Google's Inventory Value policy forbids ads on screens without publisher
+ * content and on third-party embeds carried without added value. Keep this
+ * component out of the player.
  *
  * The wrapper reserves `min-height` before the ad fills, because a responsive
  * unit popping in is exactly the layout shift the player facade work spent so
@@ -80,13 +87,10 @@ export function AdBanner({ slot }: AdBannerProps) {
 
   return (
     <div className="min-h-[100px] overflow-hidden rounded-card">
-      <Script
-        id="adsbygoogle-js"
-        async
-        src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${AD_CLIENT}`}
-        crossOrigin="anonymous"
-        strategy="lazyOnload"
-      />
+      {/* The adsbygoogle.js loader is NOT here. It lives in
+          `app/guides/layout.tsx`, which scopes it to the guides so auto ads
+          can never reach the practice screen. Loading it here too would put a
+          second copy on every guide page. */}
       <ins
         ref={insRef}
         className="adsbygoogle"

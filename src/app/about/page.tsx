@@ -84,9 +84,11 @@ export default function AboutPage() {
         turned out to be universal.
       </p>
       <p>
-        It is free, has no accounts, and shows no ads on the practice screen.
-        If it saves you a session, the best thanks is sending it to another
-        player.
+        It is free and has no accounts. The practice screen carries no
+        advertising, so nothing competes with the instrument while you work.
+        The written <Link href="/guides">guides</Link> do carry ads, and that
+        is what pays for the server. If it saves you a session, the best thanks
+        is sending it to another player.
       </p>
 
       <h2>Get in touch</h2>

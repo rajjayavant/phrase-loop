@@ -1,7 +1,8 @@
 import * as React from "react";
 import Link from "next/link";
-import { Wordmark } from "@/components/brand/wordmark";
+import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { AdBanner } from "@/features/ads/ad-banner";
 import { AUTHOR, GUIDES, PUBLISHED, UPDATED, type GuideSlug } from "./guides";
 
 const SITE = "https://phraseloop.online";
@@ -91,17 +92,9 @@ export function GuidePage({ slug, title, intro, children }: GuidePageProps) {
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <header className="mx-auto flex w-full max-w-3xl items-center px-4 py-4 sm:px-6">
-        <Link
-          href="/"
-          aria-label="PhraseLoop home"
-          className="rounded-control transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
-        >
-          <Wordmark size="sm" />
-        </Link>
-      </header>
+      <SiteHeader />
 
-      <main className="mx-auto w-full max-w-3xl flex-1 px-4 pb-16 pt-4 sm:px-6">
+      <main className="mx-auto w-full max-w-3xl flex-1 px-4 pb-16 pt-6 sm:px-6">
         <nav aria-label="Breadcrumb" className="mb-4 text-helper text-muted">
           <Link
             href="/guides"
@@ -151,6 +144,15 @@ export function GuidePage({ slug, title, intro, children }: GuidePageProps) {
           ].join(" ")}
         >
           {children}
+        </div>
+
+        {/* The ad sits here: after the whole article, before the related
+            links. This is publisher content the reader came for, so the unit
+            is compliant in a way the practice screen never was. It is below
+            every word of the guide, so content stays primary on the screen,
+            which is the other half of the Inventory Value policy. */}
+        <div className="mt-14">
+          <AdBanner slot="6906719460" />
         </div>
 
         {shown.length > 0 && (

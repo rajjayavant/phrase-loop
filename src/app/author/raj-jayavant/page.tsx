@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Wordmark } from "@/components/brand/wordmark";
+import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { AUTHOR, GUIDES } from "@/features/guides/guides";
 import { InstagramEmbeds } from "@/features/author/instagram-embeds";
@@ -55,17 +55,9 @@ export default function AuthorPage() {
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <header className="mx-auto flex w-full max-w-3xl items-center px-4 py-4 sm:px-6">
-        <Link
-          href="/"
-          aria-label="PhraseLoop home"
-          className="rounded-control transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
-        >
-          <Wordmark size="sm" />
-        </Link>
-      </header>
+      <SiteHeader />
 
-      <main className="mx-auto w-full max-w-3xl flex-1 px-4 pb-16 pt-4 sm:px-6">
+      <main className="mx-auto w-full max-w-3xl flex-1 px-4 pb-16 pt-6 sm:px-6">
         <h1 className="font-display text-page-title font-semibold tracking-[-0.03em] text-primary">
           Raj Jayavant
         </h1>

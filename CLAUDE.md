@@ -104,6 +104,13 @@ positioned with `-translate-x-1/2 -translate-y-1/2`, and an animation's
 on a centred element makes it fly in from off-centre. Tooltips, popovers, and
 toasts are not transform-centred, so `content-in` is correct for them.
 
+**Ads go on the guides, never on the player.** AdSense rejected the site for
+"low value content" in August 2026 while the only ad unit sat at the foot of
+the practice screen, whose main content is someone else's embedded YouTube
+video. `AdBanner` now renders only in `guide-page.tsx`, and the
+`adsbygoogle.js` loader lives in `app/guides/layout.tsx` so auto ads cannot
+reach `/` at all. Reasoning and the full diagnosis are in `SEO.md`.
+
 **Local files never leave the device.** They live in IndexedDB as `local:<id>`.
 A shared `?src=local:...` link only reopens on the same browser. Do not add
 upload.

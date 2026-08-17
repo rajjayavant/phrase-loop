@@ -20,7 +20,6 @@ import { PracticeHeader } from "./practice-header";
 import { toast } from "@/components/ui";
 import { FileDropZone } from "@/features/link-input/file-drop-zone";
 import { SiteFooter } from "@/components/site-footer";
-import { AdBanner } from "@/features/ads/ad-banner";
 import { useKeyboardShortcuts } from "@/features/shortcuts/use-keyboard-shortcuts";
 import { SavedLoops } from "@/features/saved-loops/saved-loops";
 import { useSavedLoopRecorder } from "@/features/saved-loops/use-saved-loop-recorder";
@@ -333,9 +332,20 @@ function SourceWorkspace({
           }
         />
 
-        {/* Home page banner 1. After the shelf: below every practice control,
-            so it can never sit between the user and the instrument. */}
-        <AdBanner slot="6906719460" />
+        {/* No ad unit here, deliberately.
+
+            AdSense rejected the site for "low value content" in August 2026.
+            The ad used to sit at the foot of this workspace, which is the one
+            screen on the site that is a tool rather than publisher content:
+            its main content is an embedded YouTube video belonging to someone
+            else. Google's Inventory Value policy prohibits ads on screens
+            "without publisher content" and on embedded third-party content
+            carried "without additional commentary, curation, or otherwise
+            adding value", so monetising the player was the violation.
+
+            Ads belong on the /guides pages, which are original writing. See
+            `features/guides/guide-page.tsx`. Do not reintroduce an ad unit on
+            the practice screen. */}
       </main>
 
       {/* Mobile transport dock */}

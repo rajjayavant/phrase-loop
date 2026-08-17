@@ -217,6 +217,82 @@ intrinsic to the answer rather than an add-on.
 
 ---
 
+## AdSense: rejected for "low value content", August 2026
+
+Recording this so the diagnosis is not repeated. The rejection was **not**
+about content volume, which was measured and is fine.
+
+### What was measured
+
+Fetched as Googlebot, counting server-rendered words in the raw HTML:
+
+| Page | Words |
+| --- | --- |
+| `/` | ~2,650 |
+| `/guides/how-to-learn-a-guitar-solo` | ~2,340 |
+| `/guides` | ~1,270 |
+
+All ten guides run 480 to 810 words of original prose with bylines, `Article`
+schema and cross-links. That clears Google's bar. Generic "write more content"
+advice does not apply here.
+
+### Indexing is fine, and is NOT the cause
+
+Confirmed against Search Console on 2026-08-17: **17 pages indexed**, 6 not
+indexed, and the property has been verified for a long time. Bing Webmaster
+Tools has scanned 17 pages with 0 errors.
+
+Do not re-diagnose this as an indexing problem. Scripted `site:` queries
+against Google, Bing and DuckDuckGo all return nothing for this domain because
+those engines block automated scraping, **not** because the site is absent from
+the index. That false signal cost a round of investigation once already.
+
+### The actual causes
+
+1. **The only ad on the site sat on the practice screen.** That page's main
+   content is an embedded YouTube video belonging to someone else. Google's
+   Inventory Value policy prohibits ads on screens "without publisher content"
+   and on embedded third-party content carried "without additional commentary,
+   curation, or otherwise adding value". The ten pages of genuine original
+   writing carried no ads at all, which is exactly backwards.
+2. **`/about` claimed the site "shows no ads on the practice screen"** while
+   that was the one place an ad rendered. A reviewer comparing the two sees a
+   false statement.
+3. **No sitewide navigation.** The guides were reachable only from in-body
+   links below the player's fold.
+4. **The site reads as a tool, not a publisher.** Ten guides is a small
+   library, and every one of them was published on the same day
+   (`PUBLISHED = 2026-08-06`) with an identical `UPDATED` date. A reviewer
+   sampling the site sees a utility with a content section bolted on, which is
+   the judgement call behind "low value content" when the word counts are
+   otherwise fine.
+
+### What was changed
+
+- `AdBanner` removed from `practice-workspace.tsx`, added to
+  `guide-page.tsx` after the article body. **Do not put an ad on the player.**
+- `components/site-header.tsx` added: wordmark plus Guides / About / Contact,
+  used by the guides, legal and author pages.
+- The `/about` advertising sentence corrected to match reality.
+- The duplicate `adsbygoogle.js` loader dropped from `AdBanner`; the single
+  loader in `app/guides/layout.tsx` already scopes the script to the guides,
+  so auto ads cannot reach the player.
+
+### Before requesting review
+
+Indexing is already done, so nothing blocks a resubmission on that front.
+
+1. Deploy the changes above.
+2. Confirm on the live site that `/` carries no ad markup and the guides do.
+3. Request the AdSense review.
+
+If it is rejected a second time with the same message, the remaining lever is
+cause 4: the library is thin in *number of pieces* rather than in words per
+piece. The response then is more guides published over time, not longer ones,
+and not more ad units.
+
+---
+
 ## Competitive landscape (Domain Rating, August 2026)
 
 Measured via the Ahrefs free DR endpoint.
