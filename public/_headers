@@ -1,0 +1,7 @@
+# Static assets are served by Cloudflare without invoking the Worker, so the
+# headers() in next.config.ts never reach them. Repeat HSTS here.
+/*
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+
+/_next/static/*
+  Cache-Control: public,max-age=31536000,immutable

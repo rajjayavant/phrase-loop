@@ -1,0 +1,25 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // Must match the Worker name in the Cloudflare dashboard. The package is
+  // still called "looper", so anything that derives the name from
+  // package.json gets it wrong; keep it explicit here.
+  "name": "phrase-loop",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-10-06",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "services": [
+    {
+      // Self-reference binding used by OpenNext; the service must be this
+      // Worker's own name.
+      "binding": "WORKER_SELF_REFERENCE",
+      "service": "phrase-loop"
+    }
+  ],
+  "observability": {
+    "enabled": true
+  }
+}
